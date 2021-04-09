@@ -5,6 +5,8 @@ import discord
 # import logging
 from discord.ext import commands
 
+token = open("token.txt")
+
 # logging.basicConfig(level=logging.INFO)
 
 bot = commands.Bot(command_prefix='>')
@@ -53,4 +55,4 @@ async def on_voice_state_update(member, before, after):
     if after is not None and after.channel is not None and after.channel.category is not None and after.channel.category.name in categorylist and (before is None or before.channel is None or before.channel.category != after.channel.category):
         await process_category(after.channel.category)
 
-bot.run('ODI5NzYyMzQ4MzY1NTEyNzM0.YG82aA.3ucgqfs_-0iSuA5NLvmtV-HVjTU')
+bot.run(token)
