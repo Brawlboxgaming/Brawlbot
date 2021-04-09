@@ -5,7 +5,10 @@ import discord
 # import logging
 from discord.ext import commands
 
-token = open("token.txt")
+f = open("token.txt", "r")
+token = f.readline()
+f.close()
+
 
 # logging.basicConfig(level=logging.INFO)
 
