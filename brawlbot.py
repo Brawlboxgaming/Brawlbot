@@ -25,6 +25,8 @@ async def process_category(category):
             numempty += 1
         if c.name.endswith(" 1"):
             templatename = c.name[:-2]
+        if c.name.endswith(" 1🔒"):
+            templatename = c.name[:-3]
 
     if numempty == 0:
         # Create a channel
@@ -32,12 +34,22 @@ async def process_category(category):
         n = 1
         while already:
             name = templatename + " " + str(n)
+            if category.name == "DUO PRIVATE CHANNELS":
+                user_limit = 2
+                name += "🔒"
+            elif category.name == "TRIO PRIVATE CHANNELS":
+                user_limit = 3
+                name += "🔒"
+            else:
+                user_limit = None
             already = False
             for c in category.channels:
                 if c.name == name:
                     already = True
             n += 1
-        await category.guild.create_voice_channel(name, category = category, user_limit=None)
+
+
+        await category.guild.create_voice_channel(name, category = category, user_limit=user_limit)
     elif numempty > 1:
         # Delete empty channels apart from first
         first = True
@@ -51,7 +63,12 @@ async def process_category(category):
 
 @bot.event
 async def on_voice_state_update(member, before, after):
-    categorylist = ["GENERAL CHANNELS", "SUPPORTERS CHANNELS", "RACING GAMES", "SHOOTING GAMES", "HORROR GAMES", "FIGHTING GAMES", "SURVIVAL GAMES", "SANDBOX GAMES", "PLATFORMERS", "RHYTHM GAMES", "SPORTS GAMES", "PUZZLE GAMES", "TABLETOP GAMES"]
+    f = open("categories.txt")
+    categorylist = f.readlines()
+    for i in range(len(categorylist)):
+        if "\n" in categorylist[i]:
+            categorylist[i] = str(categorylist[i][:-1])
+    f.close()
     if before is not None and before.channel is not None and before.channel.category is not None and before.channel.category.name in categorylist:
         await process_category(before.channel.category)
     if after is not None and after.channel is not None and after.channel.category is not None and after.channel.category.name in categorylist and (before is None or before.channel is None or before.channel.category != after.channel.category):
