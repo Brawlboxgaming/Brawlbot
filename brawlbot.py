@@ -47,8 +47,6 @@ async def process_category(category):
                 if c.name == name:
                     already = True
             n += 1
-
-
         await category.guild.create_voice_channel(name, category = category, user_limit=user_limit)
     elif numempty > 1:
         # Delete empty channels apart from first
