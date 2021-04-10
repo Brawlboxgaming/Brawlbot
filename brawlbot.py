@@ -9,7 +9,6 @@ f = open("token.txt", "r")
 token = f.readline()
 f.close()
 
-
 # logging.basicConfig(level=logging.INFO)
 
 bot = commands.Bot(command_prefix='>')
