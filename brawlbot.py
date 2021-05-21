@@ -5,7 +5,7 @@ import discord
 from discord.ext import commands
 from discord.utils import get
 
-import time
+import re
 
 f = open("token.txt", "r")
 token = f.readline()
@@ -110,12 +110,15 @@ async def process_category(category):
     n = 1
     numempty = 0
     templatename = None
+    endchars = None
     for c in category.channels:
         if isinstance(c, discord.VoiceChannel):
             if len(c.members) == 0:
                 numempty += 1
-            endchars = (c.name[c.name.index(str(n)):])[1:]
-            templatename = c.name[:-(len(endchars)+1)]
+            match = re.match(r"(.*)\d+(.*)", c.name)
+            if match:
+                templatename = match.group(1)
+                endchars = match.group(2)
             n += 1
 
     if numempty == 0:
