@@ -146,16 +146,29 @@ async def process_category(category):
 
 @bot.event
 async def on_voice_state_update(member, before, after):
-    f = open("categories.txt")
-    categorylist = f.readlines()
-    for i in range(len(categorylist)):
-        if "\n" in categorylist[i]:
-            categorylist[i] = str(categorylist[i][:-1])
-    f.close()
-    if before is not None and before.channel is not None and before.channel.category is not None and before.channel.category.name in categorylist:
-        await process_category(before.channel.category)
-    if after is not None and after.channel is not None and after.channel.category is not None and after.channel.category.name in categorylist and (before is None or before.channel is None or before.channel.category != after.channel.category):
-        await process_category(after.channel.category)
+    eventMoving = False
+    for guild in bot.guilds:
+        if get(member.guild.categories, name="EVENTS") != None:
+            for channel in get(member.guild.categories, name="EVENTS").channels:
+                if isinstance(channel, discord.VoiceChannel):
+                    if len(channel.members) >= 1:
+                        eventMoving = False
+                        break
+                    else:
+                        eventMoving = True
+                else:
+                    break
+    if not eventMoving:
+        f = open("categories.txt")
+        categorylist = f.readlines()
+        for i in range(len(categorylist)):
+            if "\n" in categorylist[i]:
+                categorylist[i] = str(categorylist[i][:-1])
+        f.close()
+        if before is not None and before.channel is not None and before.channel.category is not None and before.channel.category.name in categorylist:
+            await process_category(before.channel.category)
+        if after is not None and after.channel is not None and after.channel.category is not None and after.channel.category.name in categorylist and (before is None or before.channel is None or before.channel.category != after.channel.category):
+            await process_category(after.channel.category)
 
 @bot.event
 async def on_command_error(ctx, error):
