@@ -6,12 +6,17 @@ from discord.ext import commands
 from discord.utils import get
 
 import re
+import asyncio
 
 f = open("token.txt", "r")
 token = f.readline()
 f.close()
 
 bot = commands.Bot(command_prefix='box>')
+
+@bot.event
+async def on_ready():
+    await bot.change_presence(activity=discord.Activity(name="helping 🥊Brawlbox🥊", type=discord.ActivityType.playing))
 
 @bot.command(name='eventstart')
 @commands.has_any_role("Event Hoster (NA)", "Event Hoster (EU)")
@@ -102,10 +107,6 @@ async def event_end(ctx):
         await get(ctx.guild.categories, name="EVENTS").delete()
 
 @bot.event
-async def on_ready():
-    await bot.change_presence(activity=discord.Activity(name="helping 🥊Brawlbox🥊", type=discord.ActivityType.playing))
-
-@bot.event
 async def process_category(category):
     n = 1
     numempty = 0
@@ -147,8 +148,14 @@ async def process_category(category):
                 continue
             await c.delete()
 
+category_update_active = False
+
 @bot.event
 async def on_voice_state_update(member, before, after):
+    global category_update_active
+    while category_update_active:
+        await asyncio.sleep(1)
+    category_update_active = True
     f = open("categories.txt")
     categorylist = f.readlines()
     for i in range(len(categorylist)):
@@ -159,6 +166,7 @@ async def on_voice_state_update(member, before, after):
         await process_category(before.channel.category)
     if after is not None and after.channel is not None and after.channel.category is not None and after.channel.category.name in categorylist and (before is None or before.channel is None or before.channel.category != after.channel.category):
         await process_category(after.channel.category)
+    category_update_active = False
 
 @bot.event
 async def on_command_error(ctx, error):
