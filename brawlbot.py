@@ -14,34 +14,52 @@ f.close()
 
 bot = commands.Bot(command_prefix='box>')
 
+queue = False
+eventqueueopen = False
+eventqueuelist = []
+eventqueueembed = None
+eventqueuedisplay = ""
+eventqueuestart = False
+
 @bot.event
 async def on_ready():
     await bot.change_presence(activity=discord.Activity(name="helping 🥊Brawlbox🥊", type=discord.ActivityType.playing))
 
-@bot.command(name='eventstart')
+@bot.command(name='startevent')
 @commands.has_any_role("Event Hoster (NA)", "Event Hoster (EU)")
-async def event_start(ctx, EventName, MembersCanType, MuteMembers, Capacity, VCCount):
+async def event_start(ctx, EventName, MembersCanType, MembersCanSpeak, Capacity, VCCount, EnableQueue):
     guild = ctx.message.guild
 
     cancel = False
+    global queue
+    global eventqueueembed
 
-    if ctx.channel.id != 805904615710523417 and ctx.channel.id != 805904638640783381:
+    if ctx.channel.id != 805904615710523417 and ctx.channel.id != 805904638640783381 and ctx.channel.category.name != "EVENTS":
         cancel = True
-    if MuteMembers == "True" or MuteMembers == "true":
-        Speak = False
-    elif MuteMembers == "False" or MuteMembers == "false":
+
+    if MembersCanSpeak.lower() == "true":
         Speak = True
+    elif MembersCanSpeak.lower() == "false":
+        Speak = False
     else:
         cancel = True
-        await ctx.send("Command could not be processed: Invalid 'MuteMembers' argument")
+        await ctx.send("Command could not be processed: Invalid 'MembersCanSpeak' argument")
 
-    if MembersCanType == "True" or MembersCanType == "true":
+    if MembersCanType.lower() == "true":
         Type = True
-    elif MembersCanType == "False" or MembersCanType == "false":
+    elif MembersCanType.lower() == "false":
         Type = False
     else:
         cancel = True
         await ctx.send("Command could not be processed: Invalid 'MembersCanType' argument")
+        
+    if EnableQueue.lower() == "true":
+        queue = True
+    elif EnableQueue.lower() == "false":
+        queue = False
+    else:
+        cancel = True
+        await ctx.send("Command could not be processed: Invalid 'EnableQueue' argument")
     
     try:
         user_limit = int(Capacity)
@@ -75,6 +93,14 @@ async def event_start(ctx, EventName, MembersCanType, MuteMembers, Capacity, VCC
         'send_messages': Type}
         voiceperms = {
         'speak': Speak}
+        queueperms = {
+        'send_messages': queue
+        }
+        if queue:
+            await ctx.guild.create_text_channel(EventName + " queue", category=ctx.guild.categories[position], overwrites = {ctx.guild.default_role: discord.PermissionOverwrite(**queueperms)})
+            for channel in get(ctx.guild.categories, name="EVENTS").channels:
+                if "queue" in channel.name:
+                    eventqueueembed = await channel.send(embed=discord.Embed(title="__**Queue**__", description="*Queue Closed*", color=0xff0000))
         if VCCount == 1:
             await ctx.guild.create_text_channel(EventName, category=ctx.guild.categories[position], overwrites = {ctx.guild.default_role: discord.PermissionOverwrite(**textperms)})
             await ctx.guild.create_voice_channel(EventName.replace("-", " "), category=ctx.guild.categories[position], overwrites = {ctx.guild.default_role: discord.PermissionOverwrite(**voiceperms)}, user_limit = user_limit)
@@ -83,14 +109,17 @@ async def event_start(ctx, EventName, MembersCanType, MuteMembers, Capacity, VCC
                 await ctx.guild.create_text_channel(EventName + f"-{i+1}", category=ctx.guild.categories[position], overwrites = {ctx.guild.default_role: discord.PermissionOverwrite(**textperms)})
                 await ctx.guild.create_voice_channel(EventName.replace("-", " ") + f" {i+1}", category=ctx.guild.categories[position], overwrites = {ctx.guild.default_role: discord.PermissionOverwrite(**voiceperms)}, user_limit = user_limit)
         await ctx.guild.create_text_channel("staff-chat", category=ctx.guild.categories[position], overwrites = staffperms)
-@bot.command(name='eventend')
+
+@bot.command(name='endevent')
 @commands.has_any_role("Event Hoster (NA)", "Event Hoster (EU)")
 async def event_end(ctx):
     guild = ctx.message.guild
 
     cancel = False
+    global queue
+    queue = False
 
-    if ctx.channel.id != 805904615710523417 and ctx.channel.id != 805904638640783381:
+    if ctx.channel.id != 805904615710523417 and ctx.channel.id != 805904638640783381 and ctx.channel.category.name != "EVENTS":
         cancel = True
 
     if get(ctx.guild.categories, name="EVENTS") == None:
@@ -105,6 +134,148 @@ async def event_end(ctx):
                         await member.move_to(get(ctx.guild.channels, name="Chill Box 1"))
             await channel.delete()
         await get(ctx.guild.categories, name="EVENTS").delete()
+
+@bot.command(name='openeventqueue')
+@commands.has_any_role("Event Hoster (NA)", "Event Hoster (EU)")
+async def open_queue(ctx):
+
+    cancel = False
+    global queue
+    global eventqueueopen
+    global eventqueueembed
+    global eventqueuedisplay
+
+    if queue:
+        if ctx.channel.id != 805904615710523417 and ctx.channel.id != 805904638640783381 and ctx.channel.category.name != "EVENTS":
+            cancel = True
+
+        for channel in ctx.channel.category.channels:
+            if "queue" in channel.name:
+                if eventqueuedisplay != "":
+                    eventqueuedisplay = ""
+                    for member in eventqueuelist:
+                        eventqueuedisplay += f"<@{member}>\n----------------\n"
+                    await eventqueueembed.edit(embed=discord.Embed(title="__**Queue**__", description=f"{eventqueuedisplay}", color=0xff0000))
+                else:
+                    await eventqueueembed.edit(embed=discord.Embed(title="__**Queue**__", description="*Queue Empty*", color=0xff0000))
+
+        if not cancel:
+            await ctx.channel.send(f"The queue has now been opened. Ping <@{bot.user.id}> to join the queue.")
+            eventqueueopen = True
+
+    else:
+        await ctx.channel.send("Command could not be processed: Queue is not available for this event.")
+
+@bot.command(name='closeeventqueue')
+@commands.has_any_role("Event Hoster (NA)", "Event Hoster (EU)")
+async def close_queue(ctx):
+
+    cancel = False
+    global queue
+    global eventqueueopen
+    global eventqueuedisplay
+    global eventqueueembed
+    global eventqueuelist
+
+    if queue:
+        if ctx.channel.id != 805904615710523417 and ctx.channel.id != 805904638640783381 and ctx.channel.category.name != "EVENTS":
+            cancel = True
+
+        if not cancel:
+            eventqueuedisplay += "**Queue Closed**"
+            await eventqueueembed.edit(embed=discord.Embed(title="__**Queue**__", description=f"{eventqueuedisplay}", color=0xff0000))
+            await ctx.channel.send("The queue is now closed.")
+            eventqueueopen = False
+
+    else:
+        await ctx.channel.send("Command could not be processed: Queue is not available for this event.")
+
+@bot.command(name="starteventqueue")
+@commands.has_any_role("Event Hoster (NA)", "Event Hoster (EU)")
+async def start_queue(ctx):
+    global queue
+    global eventqueuestart
+    global eventqueuelist
+
+    if queue:
+        if not eventqueuestart:
+            if eventqueuelist != []:
+                await ctx.channel.send(f"The first user is <@{eventqueuelist[0]}>")
+                eventqueuestart = True
+            else:
+                await ctx.channel.send("Queue could not start: Queue is empty")
+                eventqueuestart = False
+        else:
+            await ctx.channel.send("Queue could not start: Queue has already been started")
+
+    else:
+        await ctx.channel.send("Command could not be processed: Queue is not available for this event.")
+
+@bot.command(name="stopeventqueue")
+@commands.has_any_role("Event Hoster (NA)", "Event Hoster (EU)")
+async def start_queue(ctx):
+    global queue
+    global eventqueuestart
+    global eventqueuelist
+
+    if queue:
+        if eventqueuestart:
+            ctx.channel.send("Queue has been stopped")
+            eventqueuestart = False
+        else:
+            await ctx.channel.send("Queue could not stop: Queue has not been started yet")
+
+    else:
+        await ctx.channel.send("Command could not be processed: Queue is not available for this event.")
+
+@bot.command(name='nexteventqueue')
+@commands.has_any_role("Event Hoster (NA)", "Event Hoster (EU)")
+async def next_queue(ctx):
+    global queue
+    global eventqueueopen
+    global eventqueuelist
+    global eventqueuedisplay
+    if queue:
+        eventqueuelist.pop(0)
+        if eventqueuelist != []:
+            eventqueuedisplay = ""
+            for member in eventqueuelist:
+                eventqueuedisplay += f"<@{member}>\n----------------\n"
+            if not eventqueueopen:
+                eventqueuedisplay += "**Queue Closed**"
+            await ctx.channel.send(f"The next user is <@{eventqueuelist[0]}>")
+        else:
+            await ctx.channel.send("There is no next user")
+            eventqueuedisplay = "*Queue Empty*"
+            eventqueuedisplay += "**Queue Closed**"
+        await eventqueueembed.edit(embed=discord.Embed(title="__**Queue**__", description=f"{eventqueuedisplay}", color=0xff0000))
+
+    else:
+        await ctx.channel.send("Command could not be processed: Queue is not available for this event.")
+
+@bot.event
+async def on_message(message):
+    global eventqueueopen
+    global eventqueueembed
+    global eventqueuelist
+    global eventqueuedisplay
+
+    if eventqueueopen:
+        if '@BrawlBot' in message.clean_content and queue and message.channel.category.name == "EVENTS":
+            eventqueuedisplay = ""
+            if f"{message.author.id}" not in eventqueuelist:
+                eventqueuelist.append(f"{message.author.id}")
+                for member in eventqueuelist:
+                    eventqueuedisplay += f"<@{member}>\n----------------\n"
+                await message.channel.send(f"<@{message.author.id}> was added to the queue")
+                await eventqueueembed.edit(embed=discord.Embed(title="__**Queue**__", description=f"{eventqueuedisplay}", color=0xff0000))
+            else:
+                await message.channel.send("Could not add you to the queue: You are already in the queue")
+    else:
+        if f'<@!{bot.user.id}>' in message.content:
+            await message.channel.send("Could not add you to the queue: The queue is closed")
+
+    await bot.process_commands(message)
 
 @bot.event
 async def process_category(category):
