@@ -195,7 +195,7 @@ async def open_queue(ctx):
             cancel = True
         
         if eventqueueopen:
-            await ctx.channel.send("Command could not be processed: Queue is already open.")
+            await ctx.channel.send("Command could not be processed: Queue is already open")
             cancel = True
 
         if not cancel:
@@ -207,12 +207,12 @@ async def open_queue(ctx):
                             eventqueuedisplay += f"<@{member}>\n----------------\n"
                         await eventqueueembed.edit(embed=discord.Embed(title="__**Queue**__", description=f"{eventqueuedisplay}", color=0xff0000))
                     else:
-                        await eventqueueembed.edit(embed=discord.Embed(title="__**Queue**__", description="*Queue Empty*\n", color=0xff0000))
+                        await eventqueueembed.edit(embed=discord.Embed(title="__**Queue**__", description="*Queue Empty*", color=0xff0000))
             await ctx.channel.send(f"The queue has now been opened. Ping <@{bot.user.id}> to join the queue.")
             eventqueueopen = True
 
     else:
-        await ctx.channel.send("Command could not be processed: Queue is not available for this event.")
+        await ctx.channel.send("Command could not be processed: Queue is not available for this event")
 
 @bot.command(name='closeeventqueue')
 @commands.has_any_role("Event Hoster (NA)", "Event Hoster (EU)")
@@ -240,7 +240,7 @@ async def close_queue(ctx):
             eventqueueopen = False
 
     else:
-        await ctx.channel.send("Command could not be processed: Queue is not available for this event.")
+        await ctx.channel.send("Command could not be processed: Queue is not available for this event")
 
 @bot.command(name="starteventqueue")
 @commands.has_any_role("Event Hoster (NA)", "Event Hoster (EU)")
@@ -261,7 +261,7 @@ async def start_queue(ctx):
             await ctx.channel.send("Queue could not start: Queue has already been started")
 
     else:
-        await ctx.channel.send("Command could not be processed: Queue is not available for this event.")
+        await ctx.channel.send("Command could not be processed: Queue is not available for this event")
 
 @bot.command(name="stopeventqueue")
 @commands.has_any_role("Event Hoster (NA)", "Event Hoster (EU)")
@@ -272,13 +272,13 @@ async def start_queue(ctx):
 
     if queue:
         if eventqueuestart:
-            await ctx.channel.send("Queue has been stopped.")
+            await ctx.channel.send("Queue has been stopped")
             eventqueuestart = False
         else:
             await ctx.channel.send("Queue could not stop: Queue has not been started yet")
 
     else:
-        await ctx.channel.send("Command could not be processed: Queue is not available for this event.")
+        await ctx.channel.send("Command could not be processed: Queue is not available for this event")
 
 @bot.command(name='nexteventqueue')
 @commands.has_any_role("Event Hoster (NA)", "Event Hoster (EU)")
@@ -302,7 +302,7 @@ async def next_queue(ctx):
             else:
                 await ctx.channel.send("There is no next user")
                 eventqueuedisplay = "*Queue Empty*"
-                eventqueuedisplay += "**Queue Closed**"
+                eventqueuedisplay += "\n**Queue Closed**"
             await eventqueueembed.edit(embed=discord.Embed(title="__**Queue**__", description=f"{eventqueuedisplay}", color=0xff0000))
         else:
             await ctx.channel.send("Command could not be processed: The queue has not been started")
