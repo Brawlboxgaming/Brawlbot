@@ -206,7 +206,7 @@ async def open_queue(ctx):
                     if eventqueuelist != []:
                         eventqueuedisplay = ""
                         for member in eventqueuelist:
-                            eventqueuedisplay += f"<@{member}>\n----------------\n"
+                            eventqueuedisplay += f"<@{member}>\n-----------------------------\n"
                         await eventqueueembed.edit(embed=discord.Embed(title="__**Queue**__", description=f"{eventqueuedisplay}", color=0xff0000))
                     else:
                         await eventqueueembed.edit(embed=discord.Embed(title="__**Queue**__", description="*Queue Empty*", color=0xff0000))
@@ -295,7 +295,7 @@ async def next_queue(ctx):
             if eventqueuelist != []:
                 eventqueuedisplay = ""
                 for member in eventqueuelist:
-                    eventqueuedisplay += f"<@{member}>\n----------------\n"
+                    eventqueuedisplay += f"<@{member}>\n----------------------------\n"
                 if not eventqueueopen:
                     eventqueuedisplay += "**Queue Closed**"
                 await ctx.channel.send(f"The next user is <@{eventqueuelist[0]}>")
