@@ -247,7 +247,7 @@ async def next_queue(ctx):
         else:
             await ctx.channel.send("There is no next user")
             eventqueuedisplay = "*Queue Empty*"
-            eventqueuedisplay += "**Queue Closed**"
+            eventqueuedisplay += "\n**Queue Closed**"
         await eventqueueembed.edit(embed=discord.Embed(title="__**Queue**__", description=f"{eventqueuedisplay}", color=0xff0000))
 
     else:
