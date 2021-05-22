@@ -25,10 +25,51 @@ eventqueuestart = False
 async def on_ready():
     await bot.change_presence(activity=discord.Activity(name="helping 🥊Brawlbox🥊", type=discord.ActivityType.playing))
 
+@bot.command(name='eventhelp')
+@commands.has_any_role("Event Hoster (NA)", "Event Hoster (EU)")
+async def event_help(ctx):
+    cancel = False
+    if ctx.channel.id != 805904615710523417 and ctx.channel.id != 805904638640783381 and ctx.channel.name != "staff-chat":
+        cancel = True
+    if not cancel:
+        await ctx.channel.send(embed=discord.Embed(title="__**Event Help**__", description="""
+            __**Commands**__
+
+            box>startevent "[Event Name]" [MembersCanType] [MembersCanSpeak] [Capacity] [NumberOfVCs] [EnableQueue]
+
+            *This is how to create an event. The 2nd, 3rd, and 6th arguments can only be "True" or "False", and the 4th and 5th can only be a number. (Note: the square brackets are just for placeholders and do not need to be put in the command.)*
+
+            box>endevent
+
+            *When the event is over, this is used to clean up and delete the event channels.*
+
+            box>openeventqueue
+
+            *This opens the event queue and allows people to join the queue.*
+
+            box>closeeventqueue
+
+            *This closes the event queue and prevents people from joining the queue. This is the default.*
+
+            box>starteventqueue
+
+            *This starts keeping track of the queue and removes people when the "nexteventqueue" command is used.*
+
+            box>stopeventqueue
+
+            *This stops the event queue tracking.*
+
+            box>nexteventqueue
+
+            *This pings the next user on the queue and starts cleaning up the queue embed in the event queue channel.*
+
+            **If you have any issues, please report them to <@105742694730457088>.**
+            """, color=0xff0000)
+            )
+
 @bot.command(name='startevent')
 @commands.has_any_role("Event Hoster (NA)", "Event Hoster (EU)")
 async def event_start(ctx, EventName, MembersCanType, MembersCanSpeak, Capacity, VCCount, EnableQueue):
-    guild = ctx.message.guild
 
     cancel = False
     global queue
@@ -235,23 +276,28 @@ async def next_queue(ctx):
     global eventqueueopen
     global eventqueuelist
     global eventqueuedisplay
+    global eventqueuestart
+
     if queue:
-        eventqueuelist.pop(0)
-        if eventqueuelist != []:
-            eventqueuedisplay = ""
-            for member in eventqueuelist:
-                eventqueuedisplay += f"<@{member}>\n----------------\n"
-            if not eventqueueopen:
+        if eventqueuestart:
+            eventqueuelist.pop(0)
+            if eventqueuelist != []:
+                eventqueuedisplay = ""
+                for member in eventqueuelist:
+                    eventqueuedisplay += f"<@{member}>\n----------------\n"
+                if not eventqueueopen:
+                    eventqueuedisplay += "**Queue Closed**"
+                await ctx.channel.send(f"The next user is <@{eventqueuelist[0]}>")
+            else:
+                await ctx.channel.send("There is no next user")
+                eventqueuedisplay = "*Queue Empty*"
                 eventqueuedisplay += "**Queue Closed**"
-            await ctx.channel.send(f"The next user is <@{eventqueuelist[0]}>")
+            await eventqueueembed.edit(embed=discord.Embed(title="__**Queue**__", description=f"{eventqueuedisplay}", color=0xff0000))
         else:
-            await ctx.channel.send("There is no next user")
-            eventqueuedisplay = "*Queue Empty*"
-            eventqueuedisplay += "\n**Queue Closed**"
-        await eventqueueembed.edit(embed=discord.Embed(title="__**Queue**__", description=f"{eventqueuedisplay}", color=0xff0000))
+            await ctx.channel.send("Command could not be processed: The queue has not been started")
 
     else:
-        await ctx.channel.send("Command could not be processed: Queue is not available for this event.")
+        await ctx.channel.send("Command could not be processed: Queue is not available for this event")
 
 @bot.event
 async def on_message(message):
