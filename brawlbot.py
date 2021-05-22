@@ -207,7 +207,7 @@ async def open_queue(ctx):
                             eventqueuedisplay += f"<@{member}>\n----------------\n"
                         await eventqueueembed.edit(embed=discord.Embed(title="__**Queue**__", description=f"{eventqueuedisplay}", color=0xff0000))
                     else:
-                        await eventqueueembed.edit(embed=discord.Embed(title="__**Queue**__", description="*Queue Empty*", color=0xff0000))
+                        await eventqueueembed.edit(embed=discord.Embed(title="__**Queue**__", description="*Queue Empty*\n", color=0xff0000))
             await ctx.channel.send(f"The queue has now been opened. Ping <@{bot.user.id}> to join the queue.")
             eventqueueopen = True
 
@@ -272,7 +272,7 @@ async def start_queue(ctx):
 
     if queue:
         if eventqueuestart:
-            ctx.channel.send("Queue has been stopped")
+            await ctx.channel.send("Queue has been stopped.")
             eventqueuestart = False
         else:
             await ctx.channel.send("Queue could not stop: Queue has not been started yet")
