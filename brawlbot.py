@@ -154,15 +154,16 @@ async def event_start(ctx, EventName, MembersCanType, MembersCanSpeak, Capacity,
 @bot.command(name='endevent')
 @commands.has_any_role("Event Hoster (NA)", "Event Hoster (EU)")
 async def event_end(ctx):
-    guild = ctx.message.guild
 
     cancel = False
     global queue
     global eventqueueopen
     global eventqueuedisplay
+    global eventqueuelist
     queue = False
     eventqueueopen = False
     eventqueuedisplay = ""
+    eventqueuelist = []
 
     if ctx.channel.id != 805904615710523417 and ctx.channel.id != 805904638640783381 and ctx.channel.category.name != "EVENTS":
         cancel = True
@@ -186,6 +187,7 @@ async def open_queue(ctx):
 
     cancel = False
     global queue
+    global eventqueuelist
     global eventqueueopen
     global eventqueueembed
     global eventqueuedisplay
@@ -201,7 +203,7 @@ async def open_queue(ctx):
         if not cancel:
             for channel in ctx.channel.category.channels:
                 if "queue" in channel.name:
-                    if eventqueuedisplay != "":
+                    if eventqueuelist != []:
                         eventqueuedisplay = ""
                         for member in eventqueuelist:
                             eventqueuedisplay += f"<@{member}>\n----------------\n"
@@ -223,7 +225,6 @@ async def close_queue(ctx):
     global eventqueueopen
     global eventqueuedisplay
     global eventqueueembed
-    global eventqueuelist
 
     if queue:
         if ctx.channel.id != 805904615710523417 and ctx.channel.id != 805904638640783381 and ctx.channel.category.name != "EVENTS":
@@ -268,7 +269,6 @@ async def start_queue(ctx):
 async def start_queue(ctx):
     global queue
     global eventqueuestart
-    global eventqueuelist
 
     if queue:
         if eventqueuestart:
@@ -302,7 +302,7 @@ async def next_queue(ctx):
             else:
                 await ctx.channel.send("There is no next user")
                 eventqueuedisplay = "*Queue Empty*"
-                eventqueuedisplay += "\n**Queue Closed**"
+                eventqueuedisplay += "\n----------------------------\n**Queue Closed**"
             await eventqueueembed.edit(embed=discord.Embed(title="__**Queue**__", description=f"{eventqueuedisplay}", color=0xff0000))
         else:
             await ctx.channel.send("Command could not be processed: The queue has not been started")
