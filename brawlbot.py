@@ -135,13 +135,13 @@ async def event_start(ctx, EventName, MembersCanType, MembersCanSpeak, Capacity,
         voiceperms = {
         'speak': Speak}
         queueperms = {
-        'send_messages': queue
+        'send_messages': False
         }
         if queue:
             await ctx.guild.create_text_channel(EventName + " queue", category=ctx.guild.categories[position], overwrites = {ctx.guild.default_role: discord.PermissionOverwrite(**queueperms)})
             for channel in get(ctx.guild.categories, name="EVENTS").channels:
                 if "queue" in channel.name:
-                    eventqueueembed = await channel.send(embed=discord.Embed(title="__**Queue**__", description="*Queue Closed*", color=0xff0000))
+                    eventqueueembed = await channel.send(embed=discord.Embed(title="__**Queue**__", description="**Queue Closed**", color=0xff0000))
         if VCCount == 1:
             await ctx.guild.create_text_channel(EventName, category=ctx.guild.categories[position], overwrites = {ctx.guild.default_role: discord.PermissionOverwrite(**textperms)})
             await ctx.guild.create_voice_channel(EventName.replace("-", " "), category=ctx.guild.categories[position], overwrites = {ctx.guild.default_role: discord.PermissionOverwrite(**voiceperms)}, user_limit = user_limit)
@@ -158,7 +158,11 @@ async def event_end(ctx):
 
     cancel = False
     global queue
+    global eventqueueopen
+    global eventqueuedisplay
     queue = False
+    eventqueueopen = False
+    eventqueuedisplay = ""
 
     if ctx.channel.id != 805904615710523417 and ctx.channel.id != 805904638640783381 and ctx.channel.category.name != "EVENTS":
         cancel = True
