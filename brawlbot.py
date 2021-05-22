@@ -193,18 +193,21 @@ async def open_queue(ctx):
     if queue:
         if ctx.channel.id != 805904615710523417 and ctx.channel.id != 805904638640783381 and ctx.channel.category.name != "EVENTS":
             cancel = True
-
-        for channel in ctx.channel.category.channels:
-            if "queue" in channel.name:
-                if eventqueuedisplay != "":
-                    eventqueuedisplay = ""
-                    for member in eventqueuelist:
-                        eventqueuedisplay += f"<@{member}>\n----------------\n"
-                    await eventqueueembed.edit(embed=discord.Embed(title="__**Queue**__", description=f"{eventqueuedisplay}", color=0xff0000))
-                else:
-                    await eventqueueembed.edit(embed=discord.Embed(title="__**Queue**__", description="*Queue Empty*", color=0xff0000))
+        
+        if eventqueueopen:
+            await ctx.channel.send("Command could not be processed: Queue is already open.")
+            cancel = True
 
         if not cancel:
+            for channel in ctx.channel.category.channels:
+                if "queue" in channel.name:
+                    if eventqueuedisplay != "":
+                        eventqueuedisplay = ""
+                        for member in eventqueuelist:
+                            eventqueuedisplay += f"<@{member}>\n----------------\n"
+                        await eventqueueembed.edit(embed=discord.Embed(title="__**Queue**__", description=f"{eventqueuedisplay}", color=0xff0000))
+                    else:
+                        await eventqueueembed.edit(embed=discord.Embed(title="__**Queue**__", description="*Queue Empty*", color=0xff0000))
             await ctx.channel.send(f"The queue has now been opened. Ping <@{bot.user.id}> to join the queue.")
             eventqueueopen = True
 
@@ -224,6 +227,10 @@ async def close_queue(ctx):
 
     if queue:
         if ctx.channel.id != 805904615710523417 and ctx.channel.id != 805904638640783381 and ctx.channel.category.name != "EVENTS":
+            cancel = True
+        
+        if not eventqueueopen:
+            await ctx.channel.send("Command could not be processed: Queue is already closed.")
             cancel = True
 
         if not cancel:
