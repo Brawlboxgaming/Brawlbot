@@ -39,6 +39,10 @@ async def event_help(ctx):
         await ctx.channel.send(embed=discord.Embed(title="__**Event Help**__", description="""
             __**Commands**__
 
+            box>dlmp4 "[Youtube Link]"
+
+            *This will download youtube videos and send them as mp4s for you to download.*
+
             box>dlmp3 "[Youtube Link]"
 
             *This will download youtube videos and send them as mp3s for you to download.*
@@ -74,6 +78,26 @@ async def event_help(ctx):
             **If you have any issues, please report them to <@105742694730457088>.**
             """, color=0xff0000)
             )
+
+@bot.command(name='dlmp4')
+async def mp4_get(ctx, link):
+    Youtube.YoutubeDL().add_default_info_extractors()
+    outs = {
+    'format':' bestvideo[ext=mp4]+bestaidop[ext=mp4]/mp4',
+	'outtmpl': '%(title)s.%(ext)s'
+    }
+    with Youtube.YoutubeDL(outs) as ytdl:
+	    ytdl.download([link])
+
+    title = Youtube.YoutubeDL().extract_info(link, download=False)['title'].replace("\\", "_").replace("/", "_").replace(":", "_").replace("*", "_").replace("?", "_").replace('"', "_").replace("<", "_").replace(">", "_").replace("|", "_")
+    mp4_file = rf"{title}.mp4"
+        
+    await ctx.message.author.send(file = discord.File(f"{title}.mp4"))
+    
+    await asyncio.sleep(30)
+    
+    if os.path.exists(mp4_file):
+        os.remove(mp4_file)
 
 @bot.command(name='dlmp3')
 async def mp3_get(ctx, link):
