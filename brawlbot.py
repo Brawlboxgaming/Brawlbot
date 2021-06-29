@@ -1,12 +1,16 @@
 '''Brawlbot made by Brawlbox
 If you would like to use this code, please make sure to credit Brawlbox'''
 
+from __future__ import unicode_literals
+import re
+import asyncio
+from moviepy.editor import *
+import youtube_dl as Youtube
+import os
+
 import discord
 from discord.ext import commands
 from discord.utils import get
-
-import re
-import asyncio
 
 f = open("token.txt", "r")
 token = f.readline()
@@ -34,6 +38,10 @@ async def event_help(ctx):
     if not cancel:
         await ctx.channel.send(embed=discord.Embed(title="__**Event Help**__", description="""
             __**Commands**__
+
+            box>dlmp3 "[Youtube Link]"
+
+            *This will download youtube videos and send them as mp3s for you to download.*
 
             box>startevent "[Event Name]" [MembersCanType] [MembersCanSpeak] [Capacity] [NumberOfVCs] [EnableQueue]
 
@@ -66,6 +74,37 @@ async def event_help(ctx):
             **If you have any issues, please report them to <@105742694730457088>.**
             """, color=0xff0000)
             )
+
+@bot.command(name='dlmp3')
+async def mp3_get(ctx, link):
+    Youtube.YoutubeDL().add_default_info_extractors()
+    outs = {
+    'format':' bestvideo[ext=mp4]+bestaidop[ext=mp4]/mp4',
+	'outtmpl': '%(title)s.%(ext)s'
+    }
+    with Youtube.YoutubeDL(outs) as ytdl:
+	    ytdl.download([link])
+
+    title = Youtube.YoutubeDL().extract_info(link, download=False)['title'].replace("\\", "_").replace("/", "_").replace(":", "_").replace("*", "_").replace("?", "_").replace('"', "_").replace("<", "_").replace(">", "_").replace("|", "_")
+    mp4_file = rf"{title}.mp4"
+    mp3_file = rf"{title}.mp3"
+    
+    videoclip = VideoFileClip(mp4_file)
+    audioclip = videoclip.audio
+    audioclip.write_audiofile(mp3_file)
+    
+    audioclip.close()
+    videoclip.close()
+    
+    if os.path.exists(mp4_file):
+        os.remove(mp4_file)
+        
+    await ctx.message.author.send(file = discord.File(f"{title}.mp3"))
+
+    await asyncio.sleep(30)
+
+    if os.path.exists(mp3_file):
+        os.remove(mp3_file)
 
 @bot.command(name='startevent')
 @commands.has_any_role("Event Hoster (NA)", "Event Hoster (EU)")
