@@ -82,14 +82,14 @@ async def event_help(ctx):
 @bot.command(name='dlmp3')
 async def mp3_get(ctx, YoutubeLink):
     Youtube.YoutubeDL().add_default_info_extractors()
+    title = Youtube.YoutubeDL().extract_info(YoutubeLink, download=False)['title'].replace("\\", "_").replace("/", "_").replace(":", "_").replace("*", "_").replace("?", "_").replace('"', "_").replace("<", "_").replace(">", "_").replace("|", "_")
     outs = {
     'format':' bestvideo[ext=mp4]+bestaidop[ext=mp4]/mp4',
-	'outtmpl': '%(title)s.%(ext)s'
+	'outtmpl': f'{title}.mp4'
     }
     with Youtube.YoutubeDL(outs) as ytdl:
 	    ytdl.download([YoutubeLink])
 
-    title = Youtube.YoutubeDL().extract_info(YoutubeLink, download=False)['title'].replace("\\", "_").replace("/", "_").replace(":", "_").replace("*", "_").replace("?", "_").replace('"', "_").replace("<", "_").replace(">", "_").replace("|", "_")
     mp4_file = rf"{title}.mp4"
     mp3_file = rf"{title}.mp3"
     
