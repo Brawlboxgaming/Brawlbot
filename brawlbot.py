@@ -2,11 +2,12 @@
 If you would like to use this code, please make sure to credit Brawlbox'''
 
 from __future__ import unicode_literals
+import os
 import re
 import asyncio
 from moviepy.editor import *
 import youtube_dl as Youtube
-import os
+import pydub
 
 import discord
 from discord.ext import commands
@@ -36,8 +37,21 @@ async def event_help(ctx):
     if ctx.channel.id != 805904615710523417 and ctx.channel.id != 805904638640783381 and ctx.channel.name != "staff-chat":
         cancel = True
     if not cancel:
+            # box>mp3towav {Upload file}
+
+            # *This will convert the mp3 file you upload to a wav file.
+
+            # box>mp4tomp3 {Upload file}
+
+            # *This will convert the mp4 file you upload to an mp3 file.
         await ctx.channel.send(embed=discord.Embed(title="__**Event Help**__", description="""
             __**Commands**__
+
+            box>wavtomp3 {Upload file}
+
+            *This will convert the wav file you upload to an mp3 file.
+
+
 
             box>dlmp4 "[Youtube Link]"
 
@@ -78,6 +92,42 @@ async def event_help(ctx):
             **If you have any issues, please report them to <@105742694730457088>.**
             """, color=0xff0000)
             )
+
+@bot.command(name='wavtomp3')
+async def wav_to_mp3(ctx):
+    title = ctx.message.attachments[0].filename[:-4]
+    await ctx.message.attachments[0].save(f"{title}.wav")
+
+    await asyncio.sleep(1)
+
+    pydub.AudioSegment.from_mp3(f"{title}.wav").export(f"{title}.mp3", format="wav")
+    if os.path.exists(f"{title}.wav"):
+        os.remove(f"{title}.wav")
+
+    await ctx.message.author.send(file = discord.File(f"{title}.mp3"))
+
+    await asyncio.sleep(30)
+
+    if os.path.exists(f"{title}.mp3"):
+        os.remove(f"{title}.mp3")
+
+# @bot.command(name='mp3towav')
+# async def mp3_to_wav(ctx):
+#     title = str(ctx.message.attachments[0].filename[:-4])
+#     await ctx.message.attachments[0].save(f"{title}.mp3")
+
+#     await asyncio.sleep(1)
+
+#     pydub.AudioSegment.from_mp3(f"{title}.mp3").export(f"{title}.wav", format="wav")
+#     if os.path.exists(f"{title}.mp3"):
+#         os.remove(f"{title}.mp3")
+
+#     await ctx.message.author.send(file = discord.File(f"{title}.wav"))
+
+#     await asyncio.sleep(30)
+
+#     if os.path.exists(f"{title}.wav"):
+#         os.remove(f"{title}.wav")
 
 @bot.command(name='dlmp3')
 async def mp3_get(ctx, YoutubeLink):
