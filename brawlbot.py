@@ -3,6 +3,7 @@ If you would like to use this code, please make sure to credit Brawlbox'''
 
 from __future__ import unicode_literals
 import os
+import subprocess
 import re
 import asyncio
 from moviepy.editor import *
@@ -50,8 +51,6 @@ async def event_help(ctx):
             box>wavtomp3 {Upload file}
 
             *This will convert the wav file you upload to an mp3 file.
-
-
 
             box>dlmp4 "[Youtube Link]"
 
@@ -104,35 +103,41 @@ async def wav_to_mp3(ctx):
     if os.path.exists(f"{title}.wav"):
         os.remove(f"{title}.wav")
 
-    await ctx.message.author.send(file = discord.File(f"{title}.mp3"))
+    os.system(f"sudo cp {title}.mp3 /var/www/html/")
 
-    await asyncio.sleep(30)
+    await ctx.message.author.send(f"www.brawlbox.xyz/{title}.mp3")
+
+    await asyncio.sleep(5)
 
     if os.path.exists(f"{title}.mp3"):
         os.remove(f"{title}.mp3")
 
-# @bot.command(name='mp3towav')
-# async def mp3_to_wav(ctx):
-#     title = str(ctx.message.attachments[0].filename[:-4])
-#     await ctx.message.attachments[0].save(f"{title}.mp3")
+@bot.command(name='dlmp4')
+async def mp4_get(ctx, YoutubeLink):
+    Youtube.YoutubeDL().add_default_info_extractors()
+    title = Youtube.YoutubeDL().extract_info(YoutubeLink, download=False)['title'].replace(" ", "_").replace("-", "_").replace("\\", "_").replace("/", "_").replace(":", "_").replace("*", "_").replace("?", "_").replace('"', "_").replace("<", "_").replace(">", "_").replace("|", "_")
+    outs = {
+    'format':' bestvideo[ext=mp4]+bestaidop[ext=mp4]/mp4',
+	'outtmpl': f'{title}.mp4'
+    }
+    with Youtube.YoutubeDL(outs) as ytdl:
+	    ytdl.download([YoutubeLink])
 
-#     await asyncio.sleep(1)
+    print(os.getcwd())
+    
+    os.system(f"sudo cp {title}.mp4 /var/www/html/")
 
-#     pydub.AudioSegment.from_mp3(f"{title}.mp3").export(f"{title}.wav", format="wav")
-#     if os.path.exists(f"{title}.mp3"):
-#         os.remove(f"{title}.mp3")
+    await ctx.message.author.send(f"http://brawlbox.xyz/{title}.mp4")
 
-#     await ctx.message.author.send(file = discord.File(f"{title}.wav"))
-
-#     await asyncio.sleep(30)
-
-#     if os.path.exists(f"{title}.wav"):
-#         os.remove(f"{title}.wav")
+    await asyncio.sleep(5)
+    
+    if os.path.exists(f"{title}.mp4"):
+        os.remove(f"{title}.mp4")
 
 @bot.command(name='dlmp3')
 async def mp3_get(ctx, YoutubeLink):
     Youtube.YoutubeDL().add_default_info_extractors()
-    title = Youtube.YoutubeDL().extract_info(YoutubeLink, download=False)['title'].replace("\\", "_").replace("/", "_").replace(":", "_").replace("*", "_").replace("?", "_").replace('"', "_").replace("<", "_").replace(">", "_").replace("|", "_")
+    title = Youtube.YoutubeDL().extract_info(YoutubeLink, download=False)['title'].replace(" ", "_").replace("-", "_").replace("\\", "_").replace("/", "_").replace(":", "_").replace("*", "_").replace("?", "_").replace('"', "_").replace("<", "_").replace(">", "_").replace("|", "_")
     outs = {
     'format':' bestvideo[ext=mp4]+bestaidop[ext=mp4]/mp4',
 	'outtmpl': f'{title}.mp4'
@@ -153,7 +158,9 @@ async def mp3_get(ctx, YoutubeLink):
     if os.path.exists(mp4_file):
         os.remove(mp4_file)
         
-    await ctx.message.author.send(file = discord.File(f"{title}.mp3"))
+    os.system(f"sudo cp {title}.mp3 /var/www/html/")
+
+    await ctx.message.author.send(f"http://brawlbox.xyz/{title}.mp3")
 
     await asyncio.sleep(30)
 
