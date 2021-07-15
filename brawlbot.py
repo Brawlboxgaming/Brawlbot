@@ -105,7 +105,7 @@ async def wav_to_mp3(ctx):
 
     os.system(f"sudo cp {title}.mp3 /var/www/html/")
 
-    await ctx.message.author.send(f"www.brawlbox.xyz/{title}.mp3")
+    await ctx.message.author.send(f"http://brawlbox.xyz/{title}.mp3")
 
     await asyncio.sleep(5)
 
