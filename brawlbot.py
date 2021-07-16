@@ -31,7 +31,7 @@ eventqueuestart = False
 async def on_ready():
     await bot.change_presence(activity=discord.Activity(name="helping 🥊Brawlbox🥊", type=discord.ActivityType.playing))
 
-@bot.command(name='eventhelp')
+@bot.command(name='help')
 @commands.has_any_role("Event Hoster (NA)", "Event Hoster (EU)")
 async def event_help(ctx):
     cancel = False
