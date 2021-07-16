@@ -31,66 +31,54 @@ eventqueuestart = False
 async def on_ready():
     await bot.change_presence(activity=discord.Activity(name="helping 🥊Brawlbox🥊", type=discord.ActivityType.playing))
 
-@bot.command(name='help')
-@commands.has_any_role("Event Hoster (NA)", "Event Hoster (EU)")
-async def event_help(ctx):
-    cancel = False
-    if ctx.channel.id != 805904615710523417 and ctx.channel.id != 805904638640783381 and ctx.channel.name != "staff-chat":
-        cancel = True
-    if not cancel:
-            # box>mp3towav {Upload file}
+@bot.command(name='h')
+async def help_message(ctx):
+    await ctx.channel.send(embed=discord.Embed(title="__**Help**__", description="""
+        __**Commands**__
 
-            # *This will convert the mp3 file you upload to a wav file.
+        box>wavtomp3 {Upload file}
 
-            # box>mp4tomp3 {Upload file}
+        *This will convert the wav file you upload to an mp3 file.
 
-            # *This will convert the mp4 file you upload to an mp3 file.
-        await ctx.channel.send(embed=discord.Embed(title="__**Event Help**__", description="""
-            __**Commands**__
+        box>dlmp4 "[Youtube Link]"
 
-            box>wavtomp3 {Upload file}
+        *This will download youtube videos and send them as mp4s for you to download.*
 
-            *This will convert the wav file you upload to an mp3 file.
+        box>dlmp3 "[Youtube Link]"
 
-            box>dlmp4 "[Youtube Link]"
+        *This will download youtube videos and send them as mp3s for you to download.*
 
-            *This will download youtube videos and send them as mp4s for you to download.*
+        box>startevent "[Event Name]" [MembersCanType] [MembersCanSpeak] [Capacity] [NumberOfVCs] [EnableQueue]
 
-            box>dlmp3 "[Youtube Link]"
+        *This is how to create an event. The 2nd, 3rd, and 6th arguments can only be "True" or "False", and the 4th and 5th can only be a number. (Note: the square brackets are just for placeholders and do not need to be put in the command.)*
 
-            *This will download youtube videos and send them as mp3s for you to download.*
+        box>endevent
 
-            box>startevent "[Event Name]" [MembersCanType] [MembersCanSpeak] [Capacity] [NumberOfVCs] [EnableQueue]
+        *When the event is over, this is used to clean up and delete the event channels.*
 
-            *This is how to create an event. The 2nd, 3rd, and 6th arguments can only be "True" or "False", and the 4th and 5th can only be a number. (Note: the square brackets are just for placeholders and do not need to be put in the command.)*
+        box>openeventqueue
 
-            box>endevent
+        *This opens the event queue and allows people to join the queue.*
 
-            *When the event is over, this is used to clean up and delete the event channels.*
+        box>closeeventqueue
 
-            box>openeventqueue
+        *This closes the event queue and prevents people from joining the queue. This is the default.*
 
-            *This opens the event queue and allows people to join the queue.*
+        box>starteventqueue
 
-            box>closeeventqueue
+        *This starts keeping track of the queue and removes people when the "nexteventqueue" command is used.*
 
-            *This closes the event queue and prevents people from joining the queue. This is the default.*
+        box>stopeventqueue
 
-            box>starteventqueue
+        *This stops the event queue tracking.*
 
-            *This starts keeping track of the queue and removes people when the "nexteventqueue" command is used.*
+        box>nexteventqueue
 
-            box>stopeventqueue
+        *This pings the next user on the queue and starts cleaning up the queue embed in the event queue channel.*
 
-            *This stops the event queue tracking.*
-
-            box>nexteventqueue
-
-            *This pings the next user on the queue and starts cleaning up the queue embed in the event queue channel.*
-
-            **If you have any issues, please report them to <@105742694730457088>.**
-            """, color=0xff0000)
-            )
+        **If you have any issues, please report them to <@105742694730457088>.**
+        """, color=0xff0000)
+        )
 
 @bot.command(name='wavtomp3')
 async def wav_to_mp3(ctx):
