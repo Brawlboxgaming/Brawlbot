@@ -82,53 +82,53 @@ async def help_message(ctx):
 
 @bot.command(name='wavtomp3')
 async def wav_to_mp3(ctx):
-    title = ctx.message.attachments[0].filename[:-4]
-    await ctx.message.attachments[0].save(f"{title}.wav")
+    title = ctx.message.attachments[0].filename[:-4].replace("\"", "'").replace("(", "[").replace(")", "]")
+    await ctx.message.attachments[0].save(rf"{title}.wav")
 
     await asyncio.sleep(1)
 
-    pydub.AudioSegment.from_mp3(f"{title}.wav").export(f"{title}.mp3", format="wav")
-    if os.path.exists(f"{title}.wav"):
-        os.remove(f"{title}.wav")
+    pydub.AudioSegment.from_mp3(f"{title}.wav").export(rf"{title}.mp3", format="wav")
+    if os.path.exists(rf"{title}.wav"):
+        os.remove(rf"{title}.wav")
 
-    os.system(f"sudo cp {title}.mp3 /var/www/html/")
+    os.system(rf'sudo cp "{title}.mp3" /var/www/brawlbox/')
 
     await ctx.message.author.send(f"http://brawlbox.xyz/{title}.mp3")
 
     await asyncio.sleep(5)
 
-    if os.path.exists(f"{title}.mp3"):
-        os.remove(f"{title}.mp3")
+    if os.path.exists(rf"{title}.mp3"):
+        os.remove(rf"{title}.mp3")
 
 @bot.command(name='dlmp4')
 async def mp4_get(ctx, YoutubeLink):
     Youtube.YoutubeDL().add_default_info_extractors()
-    title = Youtube.YoutubeDL().extract_info(YoutubeLink, download=False)['title'].replace("(", "[").replace(")", "]").replace(" ", "_").replace("&", "and").replace("\\", "_").replace("/", "_").replace(":", "_").replace("*", "_").replace("?", "_").replace('"', "_").replace("<", "_").replace(">", "_").replace("|", "_")
+    title = Youtube.YoutubeDL().extract_info(YoutubeLink, download=False)['title'].replace("\"", "'").replace("(", "[").replace(")", "]").replace(" ", "_").replace("&", "and").replace("\\", "_").replace("/", "_").replace(":", "_").replace("*", "_").replace("?", "_").replace('"', "_").replace("<", "_").replace(">", "_").replace("|", "_")
     outs = {
     'format':' bestvideo[ext=mp4]+bestaidop[ext=mp4]/mp4',
-	'outtmpl': f'{title}.mp4'
+	'outtmpl': rf'{title}.mp4'
     }
     with Youtube.YoutubeDL(outs) as ytdl:
 	    ytdl.download([YoutubeLink])
 
     print(os.getcwd())
     
-    os.system(f"sudo cp {title}.mp4 /var/www/html/")
+    os.system(rf'sudo cp "{title}.mp4" /var/www/brawlbox/')
 
-    await ctx.message.author.send(f"http://brawlbox.xyz/{title}.mp4")
+    await ctx.message.author.send(rf"http://brawlbox.xyz/{title}.mp4")
 
     await asyncio.sleep(5)
     
-    if os.path.exists(f"{title}.mp4"):
-        os.remove(f"{title}.mp4")
+    if os.path.exists(rf"{title}.mp4"):
+        os.remove(rf"{title}.mp4")
 
 @bot.command(name='dlmp3')
 async def mp3_get(ctx, YoutubeLink):
     Youtube.YoutubeDL().add_default_info_extractors()
-    title = Youtube.YoutubeDL().extract_info(YoutubeLink, download=False)['title'].replace("(", "[").replace(")", "]").replace(" ", "_").replace("&", "and").replace("\\", "_").replace("/", "_").replace(":", "_").replace("*", "_").replace("?", "_").replace('"', "_").replace("<", "_").replace(">", "_").replace("|", "_")
+    title = Youtube.YoutubeDL().extract_info(YoutubeLink, download=False)['title'].replace("\"", "'").replace("(", "[").replace(")", "]").replace(" ", "_").replace("&", "and").replace("\\", "_").replace("/", "_").replace(":", "_").replace("*", "_").replace("?", "_").replace('"', "_").replace("<", "_").replace(">", "_").replace("|", "_")
     outs = {
     'format':' bestvideo[ext=mp4]+bestaidop[ext=mp4]/mp4',
-	'outtmpl': f'{title}.mp4'
+	'outtmpl': rf'{title}.mp4'
     }
     with Youtube.YoutubeDL(outs) as ytdl:
 	    ytdl.download([YoutubeLink])
@@ -146,9 +146,9 @@ async def mp3_get(ctx, YoutubeLink):
     if os.path.exists(mp4_file):
         os.remove(mp4_file)
         
-    os.system(f"sudo cp {title}.mp3 /var/www/html/")
+    os.system(rf'sudo cp "{title}.mp3" /var/www/brawlbox/')
 
-    await ctx.message.author.send(f"http://brawlbox.xyz/{title}.mp3")
+    await ctx.message.author.send(rf"http://brawlbox.xyz/{title}.mp3")
 
     await asyncio.sleep(30)
 
