@@ -103,7 +103,7 @@ async def wav_to_mp3(ctx):
 @bot.command(name='dlmp4')
 async def mp4_get(ctx, YoutubeLink):
     Youtube.YoutubeDL().add_default_info_extractors()
-    title = Youtube.YoutubeDL().extract_info(YoutubeLink, download=False)['title'].replace("\"", "'").replace("(", "[").replace(")", "]").replace(" ", "_").replace("&", "and").replace("\\", "_").replace("/", "_").replace(":", "_").replace("*", "_").replace("?", "_").replace('"', "_").replace("<", "_").replace(">", "_").replace("|", "_")
+    title = Youtube.YoutubeDL().extract_info(YoutubeLink, download=False)['title'].replace("\"", "'").replace("(", "[").replace(")", "]").replace(" ", "_").replace("&", "and").replace("\\", "_").replace("/", "_").replace(":", "_").replace("*", "_").replace("?", "_").replace('"', "_").replace("<", "_").replace(">", "_").replace("|", "_").replace("#", "")
     outs = {
     'format':' bestvideo[ext=mp4]+bestaidop[ext=mp4]/mp4',
 	'outtmpl': rf'{title}.mp4'
@@ -125,7 +125,7 @@ async def mp4_get(ctx, YoutubeLink):
 @bot.command(name='dlmp3')
 async def mp3_get(ctx, YoutubeLink):
     Youtube.YoutubeDL().add_default_info_extractors()
-    title = Youtube.YoutubeDL().extract_info(YoutubeLink, download=False)['title'].replace("\"", "'").replace("(", "[").replace(")", "]").replace(" ", "_").replace("&", "and").replace("\\", "_").replace("/", "_").replace(":", "_").replace("*", "_").replace("?", "_").replace('"', "_").replace("<", "_").replace(">", "_").replace("|", "_")
+    title = Youtube.YoutubeDL().extract_info(YoutubeLink, download=False)['title'].replace("\"", "'").replace("(", "[").replace(")", "]").replace(" ", "_").replace("&", "and").replace("\\", "_").replace("/", "_").replace(":", "_").replace("*", "_").replace("?", "_").replace('"', "_").replace("<", "_").replace(">", "_").replace("|", "_").replace("#", "")
     outs = {
     'format':' bestvideo[ext=mp4]+bestaidop[ext=mp4]/mp4',
 	'outtmpl': rf'{title}.mp4'
