@@ -26,7 +26,11 @@ eventqueuelist = []
 eventqueueembed = None
 eventqueuedisplay = ""
 eventqueuestart = False
-connected = False
+
+is_playing = False
+music_queue = []
+vc = "Music Box"
+ydl_options = {'format': 'bestaudio', 'noplaylist': 'True'}
 
 @bot.event
 async def on_ready():
@@ -103,77 +107,84 @@ async def help_message(ctx):
         """, color=0xff0000)
         )
 
-@bot.command(name="play")
-async def play(ctx, url : str):
-    global connected
-    if ctx.channel.id == 806238209985085491:
-        song_there = os.path.isfile("song.mp3")
-        try:
-            if song_there:
-                os.remove("song.mp3")
-        except PermissionError:
-            await ctx.send("Wait for the current playing music to end or use the 'stop' command")
-            return
+def search_yt(item):
+    global ydl_options
+    try:
+        info = Youtube.YoutubeDL(ydl_options).extract_info("ytsearch:%s" % item, download=False)['entries'][0]
+    except Exception:
+        return False
+    
+    return {'source': info['formats'][0]['url'], 'title': info['title']}
 
-        if not connected:
-            voiceChannel = discord.utils.get(ctx.guild.channels, name='Music Box')
-            await voiceChannel.connect()
-            voice = discord.utils.get(bot.voice_clients, guild=ctx.guild)
-            connected = True
+def play_next(ctx):
+    voice = discord.utils.get(bot.voice_clients, guild=ctx.guild)
+    global is_playing
+    global music_queue
+    if len(music_queue) > 0:
+        is_playing = True
 
-        ydl_opts = {
-            'format': 'bestaudio/best',
-            'postprocessors': [{
-                'key': 'FFmpegExtractAudio',
-                'preferredcodec': 'mp3',
-                'preferredquality': '192',
-            }],
-        }
-        with Youtube.YoutubeDL(ydl_opts) as ydl:
-            ydl.download([url])
-        for file in os.listdir("./"):
-            if file.endswith(".mp3"):
-                os.rename(file, "song.mp3")
-        voice.play(discord.FFmpegPCMAudio("song.mp3"))
+        m_url = music_queue[0][0]['source']
 
+        music_queue.pop(0)
 
-@bot.command(name="leave")
-async def leave(ctx):
-    global connected
-    if ctx.channel.id == 806238209985085491:
+        voice.play(discord.FFmpegPCMAudio(rf"{m_url}"), after=lambda e: play_next(ctx))
+    else:
+        is_playing = False
+
+async def play_music(ctx):
+    global is_playing
+    global music_queue
+    voice = discord.utils.get(bot.voice_clients, guild=ctx.guild)
+    channel = discord.utils.get(ctx.guild.channels, name='Music Box')
+    if len(music_queue) > 0:
+        is_playing = True
+
+        m_url = music_queue[0][0]['source']
+
+        try: await channel.connect()
+        except: pass
+
+        music_queue.pop(0)
         voice = discord.utils.get(bot.voice_clients, guild=ctx.guild)
-        if voice.is_connected():
-            await voice.disconnect()
-            connected = False
-        else:
-            await ctx.send("The bot is not connected to a voice channel.")
+        voice.play(discord.FFmpegPCMAudio(rf"{m_url}"), after=lambda e: play_next(ctx))
+    else:
+        await voice.disconnect()
+        is_playing = False
 
+@bot.command(name='play')
+async def play(ctx, *args):
+    global is_playing
+    global music_queue
+    channel = discord.utils.get(ctx.guild.channels, name='Music Box')
+    query = " ".join(args)
 
-@bot.command(name="pause")
-async def pause(ctx):
-    if ctx.channel.id == 806238209985085491:
-        voice = discord.utils.get(bot.voice_clients, guild=ctx.guild)
-        if voice.is_playing():
-            voice.pause()
-        else:
-            await ctx.send("Currently no audio is playing.")
+    song = search_yt(query)
+    if type(song) == type(True):
+        await ctx.send("Could not download the song. Incorrect format try another keyword. This could be due to playlist or a livestream.")
+    else:
+        await ctx.send("Song added to the queue")
+        music_queue.append([song, channel])
 
+        if is_playing == False:
+            await play_music(ctx)
 
-@bot.command(name="resume")
-async def resume(ctx):
-    if ctx.channel.id == 806238209985085491:
-        voice = discord.utils.get(bot.voice_clients, guild=ctx.guild)
-        if voice.is_paused():
-            voice.resume()
-        else:
-            await ctx.send("The audio is not paused.")
+@bot.command(name="queue")
+async def queue(ctx):
+    global music_queue
+    retval = ""
+    for i in range(0, len(music_queue)):
+        retval += music_queue[i][0]['title'] + "\n"
+    
+    if retval != "":
+        await ctx.send(retval)
+    else:
+        await ctx.send("No music in queue")
 
-
-@bot.command(name="stop")
-async def stop(ctx):
-    if ctx.channel.id == 806238209985085491:
-        voice = discord.utils.get(bot.voice_clients, guild=ctx.guild)
-        voice.stop()
+@bot.command(name="skip")
+async def skip(ctx):
+    voice = discord.utils.get(bot.voice_clients, guild=ctx.guild)
+    voice.stop()
+    await play_music()
 
 @bot.command(name='wavtomp3')
 async def wav_to_mp3(ctx):
