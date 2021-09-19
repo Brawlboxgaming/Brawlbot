@@ -3,7 +3,6 @@ If you would like to use this code, please make sure to credit Brawlbox'''
 
 from __future__ import unicode_literals
 import os
-import subprocess
 import re
 import asyncio
 from moviepy.editor import *
@@ -11,6 +10,7 @@ import youtube_dl as Youtube
 import pydub
 
 import discord
+import discord.voice_client
 from discord.ext import commands
 from discord.utils import get
 
@@ -26,6 +26,7 @@ eventqueuelist = []
 eventqueueembed = None
 eventqueuedisplay = ""
 eventqueuestart = False
+connected = False
 
 @bot.event
 async def on_ready():
@@ -35,6 +36,26 @@ async def on_ready():
 async def help_message(ctx):
     await ctx.channel.send(embed=discord.Embed(title="__**Help**__", description="""
         __**Commands**__
+
+        box>play {Link}
+
+        *This will play the audio through discord with either a youtube or spotify link.
+
+        box>leave
+
+        *This will disconnect the bot from the voice channel.
+
+        box>pause
+
+        *This will pause the currently playing audio.
+
+        box>resume
+
+        *This will continue the paused audio.
+
+        box>stop
+
+        *This will stop the audio currently playing.
 
         box>wavtomp3 {Upload file}
 
@@ -47,6 +68,8 @@ async def help_message(ctx):
         box>dlmp3 "[Youtube Link]"
 
         *This will download youtube videos and send them as mp3s for you to download.*
+
+        ***Event Hosters Only***
 
         box>startevent "[Event Name]" [MembersCanType] [MembersCanSpeak] [Capacity] [NumberOfVCs] [EnableQueue]
 
@@ -82,6 +105,7 @@ async def help_message(ctx):
 
 @bot.command(name="play")
 async def play(ctx, url : str):
+    global connected
     if ctx.channel.id == 806238209985085491:
         song_there = os.path.isfile("song.mp3")
         try:
@@ -91,9 +115,11 @@ async def play(ctx, url : str):
             await ctx.send("Wait for the current playing music to end or use the 'stop' command")
             return
 
-        voiceChannel = discord.utils.get(ctx.guild.voice_channels, name='Music Box')
-        await voiceChannel.connect()
-        voice = discord.utils.get(bot.voice_clients, guild=ctx.guild)
+        if not connected:
+            voiceChannel = discord.utils.get(ctx.guild.channels, name='Music Box')
+            await voiceChannel.connect()
+            voice = discord.utils.get(bot.voice_clients, guild=ctx.guild)
+            connected = True
 
         ydl_opts = {
             'format': 'bestaudio/best',
@@ -113,10 +139,12 @@ async def play(ctx, url : str):
 
 @bot.command(name="leave")
 async def leave(ctx):
+    global connected
     if ctx.channel.id == 806238209985085491:
         voice = discord.utils.get(bot.voice_clients, guild=ctx.guild)
         if voice.is_connected():
             await voice.disconnect()
+            connected = False
         else:
             await ctx.send("The bot is not connected to a voice channel.")
 
