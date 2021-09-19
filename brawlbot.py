@@ -116,7 +116,7 @@ def search_yt(item):
     
     return {'source': info['formats'][0]['url'], 'title': info['title']}
 
-def play_next(ctx):
+async def play_next(ctx):
     voice = discord.utils.get(bot.voice_clients, guild=ctx.guild)
     global is_playing
     global music_queue
@@ -129,6 +129,7 @@ def play_next(ctx):
 
         voice.play(discord.FFmpegPCMAudio(rf"{m_url}"), after=lambda e: play_next(ctx))
     else:
+        await voice.disconnect()
         is_playing = False
 
 async def play_music(ctx):
