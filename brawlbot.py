@@ -184,7 +184,7 @@ async def queue(ctx):
 async def skip(ctx):
     voice = discord.utils.get(bot.voice_clients, guild=ctx.guild)
     voice.stop()
-    await play_music()
+    await play_music(ctx)
 
 @bot.command(name='wavtomp3')
 async def wav_to_mp3(ctx):
