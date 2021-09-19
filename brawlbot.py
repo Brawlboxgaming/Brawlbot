@@ -80,6 +80,73 @@ async def help_message(ctx):
         """, color=0xff0000)
         )
 
+@bot.command(name="play")
+async def play(ctx, url : str):
+    if ctx.channel.id == 806238209985085491:
+        song_there = os.path.isfile("song.mp3")
+        try:
+            if song_there:
+                os.remove("song.mp3")
+        except PermissionError:
+            await ctx.send("Wait for the current playing music to end or use the 'stop' command")
+            return
+
+        voiceChannel = discord.utils.get(ctx.guild.voice_channels, name='Music Box')
+        await voiceChannel.connect()
+        voice = discord.utils.get(bot.voice_clients, guild=ctx.guild)
+
+        ydl_opts = {
+            'format': 'bestaudio/best',
+            'postprocessors': [{
+                'key': 'FFmpegExtractAudio',
+                'preferredcodec': 'mp3',
+                'preferredquality': '192',
+            }],
+        }
+        with Youtube.YoutubeDL(ydl_opts) as ydl:
+            ydl.download([url])
+        for file in os.listdir("./"):
+            if file.endswith(".mp3"):
+                os.rename(file, "song.mp3")
+        voice.play(discord.FFmpegPCMAudio("song.mp3"))
+
+
+@bot.command(name="leave")
+async def leave(ctx):
+    if ctx.channel.id == 806238209985085491:
+        voice = discord.utils.get(bot.voice_clients, guild=ctx.guild)
+        if voice.is_connected():
+            await voice.disconnect()
+        else:
+            await ctx.send("The bot is not connected to a voice channel.")
+
+
+@bot.command(name="pause")
+async def pause(ctx):
+    if ctx.channel.id == 806238209985085491:
+        voice = discord.utils.get(bot.voice_clients, guild=ctx.guild)
+        if voice.is_playing():
+            voice.pause()
+        else:
+            await ctx.send("Currently no audio is playing.")
+
+
+@bot.command(name="resume")
+async def resume(ctx):
+    if ctx.channel.id == 806238209985085491:
+        voice = discord.utils.get(bot.voice_clients, guild=ctx.guild)
+        if voice.is_paused():
+            voice.resume()
+        else:
+            await ctx.send("The audio is not paused.")
+
+
+@bot.command(name="stop")
+async def stop(ctx):
+    if ctx.channel.id == 806238209985085491:
+        voice = discord.utils.get(bot.voice_clients, guild=ctx.guild)
+        voice.stop()
+
 @bot.command(name='wavtomp3')
 async def wav_to_mp3(ctx):
     title = ctx.message.attachments[0].filename[:-4].replace("\"", "'").replace("(", "[").replace(")", "]")
