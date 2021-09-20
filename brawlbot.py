@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 import os
 import re
 import asyncio
+from discord.channel import VocalGuildChannel
 from moviepy.editor import *
 import youtube_dl as Youtube
 import pydub
@@ -29,6 +30,7 @@ eventqueuestart = False
 voice = None
 
 is_playing = False
+is_paused = False
 music_queue = []
 vc = "Music Box"
 ydl_options = {'format': 'bestaudio', 'noplaylist': 'True'}
@@ -134,7 +136,7 @@ async def play_music(ctx):
 
         music_queue.pop(0)
         voice.play(discord.FFmpegPCMAudio(rf"{m_url}"), after=lambda e: play_music(ctx))
-    while voice.is_playing():
+    while voice.is_playing() or is_paused:
         await asyncio.sleep(1)
     else:
         if len(music_queue) > 0:
@@ -185,7 +187,6 @@ async def skip(ctx):
     is_playing = False
     voice = discord.utils.get(bot.voice_clients, guild=ctx.guild)
     voice.stop()
-    voice.disconnect()
     await ctx.send("Music stopped")
 
 @bot.command(name="skip")
@@ -198,18 +199,18 @@ async def skip(ctx):
 
 @bot.command(name="pause")
 async def skip(ctx):
-    global is_playing
     global voice
-    is_playing = False
+    global is_paused
+    is_paused = True
     voice = discord.utils.get(bot.voice_clients, guild=ctx.guild)
     voice.pause()
     await ctx.send("Music paused")
 
 @bot.command(name="resume")
 async def skip(ctx):
-    global is_playing
     global voice
-    is_playing = True
+    global is_paused
+    is_paused = False
     voice = discord.utils.get(bot.voice_clients, guild=ctx.guild)
     voice.resume()
     await ctx.send("Music resumed")
