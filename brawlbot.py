@@ -26,6 +26,7 @@ eventqueuelist = []
 eventqueueembed = None
 eventqueuedisplay = ""
 eventqueuestart = False
+voice = None
 
 is_playing = False
 music_queue = []
@@ -116,41 +117,35 @@ def search_yt(item):
     
     return {'source': info['formats'][0]['url'], 'title': info['title']}
 
-async def play_next(ctx):
-    voice = discord.utils.get(bot.voice_clients, guild=ctx.guild)
-    global is_playing
-    global music_queue
-    if len(music_queue) > 0:
-        is_playing = True
-
-        m_url = music_queue[0][0]['source']
-
-        music_queue.pop(0)
-
-        voice.play(discord.FFmpegPCMAudio(rf"{m_url}"), after=lambda e: play_next(ctx))
-    else:
-        await voice.disconnect()
-        is_playing = False
-
 async def play_music(ctx):
     global is_playing
     global music_queue
-    voice = discord.utils.get(bot.voice_clients, guild=ctx.guild)
+    global voice
     channel = discord.utils.get(ctx.guild.channels, name='Music Box')
     if len(music_queue) > 0:
         is_playing = True
 
         m_url = music_queue[0][0]['source']
 
-        try: await channel.connect()
-        except: pass
+        try: 
+            await channel.connect()
+            voice = discord.utils.get(bot.voice_clients, guild=ctx.guild)
+        except: voice = discord.utils.get(bot.voice_clients, guild=ctx.guild)
 
         music_queue.pop(0)
-        voice = discord.utils.get(bot.voice_clients, guild=ctx.guild)
-        voice.play(discord.FFmpegPCMAudio(rf"{m_url}"), after=lambda e: play_next(ctx))
+        voice.play(discord.FFmpegPCMAudio(rf"{m_url}"), after=lambda e: play_music(ctx))
+    while voice.is_playing():
+        await asyncio.sleep(1)
     else:
-        await voice.disconnect()
+        if len(music_queue) > 0:
+            await play_music(ctx)
         is_playing = False
+        await asyncio.sleep(15)
+        while voice.is_playing():
+            break
+        else:
+            voice.stop()
+            await voice.disconnect()
 
 @bot.command(name='play')
 async def play(ctx, *args):
@@ -181,11 +176,43 @@ async def queue(ctx):
     else:
         await ctx.send("No music in queue")
 
+@bot.command(name="stop")
+async def skip(ctx):
+    global music_queue
+    global is_playing
+    global voice
+    music_queue = []
+    is_playing = False
+    voice = discord.utils.get(bot.voice_clients, guild=ctx.guild)
+    voice.stop()
+    voice.disconnect()
+    await ctx.send("Music stopped")
+
 @bot.command(name="skip")
 async def skip(ctx):
+    global voice
     voice = discord.utils.get(bot.voice_clients, guild=ctx.guild)
     voice.stop()
     await play_music(ctx)
+    await ctx.send("Music skipped")
+
+@bot.command(name="pause")
+async def skip(ctx):
+    global is_playing
+    global voice
+    is_playing = False
+    voice = discord.utils.get(bot.voice_clients, guild=ctx.guild)
+    voice.pause()
+    await ctx.send("Music paused")
+
+@bot.command(name="resume")
+async def skip(ctx):
+    global is_playing
+    global voice
+    is_playing = True
+    voice = discord.utils.get(bot.voice_clients, guild=ctx.guild)
+    voice.resume()
+    await ctx.send("Music resumed")
 
 @bot.command(name='wavtomp3')
 async def wav_to_mp3(ctx):
