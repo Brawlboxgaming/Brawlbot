@@ -32,6 +32,7 @@ voice = None
 is_playing = False
 is_paused = False
 music_queue = []
+currentlyPlaying = "*None*"
 vc = "Music Box"
 ydl_options = {'format': 'bestaudio', 'noplaylist': 'True'}
 
@@ -48,9 +49,9 @@ async def help_message(ctx):
 
         *This will play the audio through discord with either a youtube or spotify link.
 
-        box>leave
+        box>skip
 
-        *This will disconnect the bot from the voice channel.
+        *This will skip the current song in the queue.
 
         box>pause
 
@@ -62,7 +63,7 @@ async def help_message(ctx):
 
         box>stop
 
-        *This will stop the audio currently playing.
+        *This will stop the song currently playing.
 
         box>wavtomp3 {Upload file}
 
@@ -123,6 +124,7 @@ async def play_music(ctx):
     global is_playing
     global music_queue
     global voice
+    global currentlyPlaying
     channel = discord.utils.get(ctx.guild.channels, name='Music Box')
     if len(music_queue) > 0:
         is_playing = True
@@ -134,11 +136,15 @@ async def play_music(ctx):
             voice = discord.utils.get(bot.voice_clients, guild=ctx.guild)
         except: voice = discord.utils.get(bot.voice_clients, guild=ctx.guild)
 
+        currentlyPlaying = music_queue[0][0]['title']
+        await ctx.send(f"Currently playing: {currentlyPlaying}")
+
         music_queue.pop(0)
         voice.play(discord.FFmpegPCMAudio(rf"{m_url}"), after=lambda e: play_music(ctx))
     while voice.is_playing() or is_paused:
         await asyncio.sleep(1)
     else:
+        currentlyPlaying = "*None*"
         if len(music_queue) > 0:
             await play_music(ctx)
         is_playing = False
@@ -169,14 +175,27 @@ async def play(ctx, *args):
 @bot.command(name="queue")
 async def queue(ctx):
     global music_queue
+    global currentlyPlaying
     retval = ""
     for i in range(0, len(music_queue)):
-        retval += music_queue[i][0]['title'] + "\n"
+        retval += "- " + music_queue[i][0]['title'] + "\n"
     
     if retval != "":
-        await ctx.send(retval)
+        await ctx.channel.send(embed=discord.Embed(title="__**Queue**__", description=f"""
+        __Currently Playing__
+        - {currentlyPlaying}
+
+        __Up next__
+        {retval}
+        """, color=0xff0000))
     else:
-        await ctx.send("No music in queue")
+        await ctx.channel.send(embed=discord.Embed(title="__**Queue**__", description=f"""
+        __Currently Playing__
+        - {currentlyPlaying}
+
+        __Up next__
+        *No music in the queue*
+        """, color=0xff0000))
 
 @bot.command(name="stop")
 async def skip(ctx):
@@ -194,8 +213,8 @@ async def skip(ctx):
     global voice
     voice = discord.utils.get(bot.voice_clients, guild=ctx.guild)
     voice.stop()
-    await play_music(ctx)
     await ctx.send("Music skipped")
+    await play_music(ctx)
 
 @bot.command(name="pause")
 async def skip(ctx):
