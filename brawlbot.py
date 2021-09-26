@@ -917,9 +917,9 @@ category_update_active = False
 async def on_voice_state_update(member, before, after):
     global performanceInfo
     global category_update_active
-    if member.id == 105742694730457088 and (member.voice.mute == True or member.voice.deaf):
+    if member.id == 105742694730457088 and (member.voice.mute or member.voice.deaf):
         await member.edit(mute=False)
-        await member.edit(deaf=False)
+        await member.edit(deafen=False)
     if after.channel == None and before.channel.category.name == "PERFORMANCE":
         try:
             for i in range(len(before.channel.name[-1])):
