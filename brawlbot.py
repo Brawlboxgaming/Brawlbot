@@ -417,7 +417,6 @@ async def skipqueue(ctx):
                 await ctx.channel.send("The queue is empty.")
         except:
             await ctx.channel.send("The queue is empty.")
-        
         try:
             if len(performanceInfo) > int(ctx.author.voice.channel.name[-1])-1:
                 for i in range(len(performanceInfo[int(ctx.author.voice.channel.name[-1])-1])):
@@ -426,8 +425,9 @@ async def skipqueue(ctx):
                         for member in discord.utils.get(ctx.guild.channels, name=ctx.author.voice.channel.name).members:
                             if member.id != performanceInfo[int(ctx.author.voice.channel.name[-1])-1][i].person.id:
                                 await ctx.author.voice.channel.set_permissions(ctx.guild.default_role, speak=True)
+                                currentVC = ctx.author.voice.channel
                                 await member.move_to(discord.utils.get(ctx.guild.channels, name="Welcome to The Brawl Box"))
-                                await member.move_to(ctx.author.voice.channel)
+                                await member.move_to(currentVC)
                             else:
                                 await discord.utils.get(ctx.guild.roles, name=ctx.author.voice.channel.name).delete()
                     performanceInfo[int(ctx.author.voice.channel.name[-1])-1].pop(0)
@@ -458,8 +458,9 @@ async def clearqueue(ctx):
                     for member in discord.utils.get(ctx.guild.channels, name=ctx.author.voice.channel.name).members:
                         if member.id != performanceInfo[int(ctx.author.voice.channel.name[-1])-1][i].person.id:
                             await ctx.author.voice.channel.set_permissions(ctx.guild.default_role, speak=True)
+                            currentVC = ctx.author.voice.channel
                             await member.move_to(discord.utils.get(ctx.guild.channels, name="Welcome to The Brawl Box"))
-                            await member.move_to(ctx.author.voice.channel)
+                            await member.move_to(currentVC)
                         else:
                             await discord.utils.get(ctx.guild.roles, name=ctx.author.voice.channel.name).delete()
                 for i in range(len(performanceInfo[int(ctx.author.voice.channel.name[-1])-1])):
@@ -979,7 +980,7 @@ category_update_active = False
 async def on_voice_state_update(member, before, after):
     global performanceInfo
     global category_update_active
-    if member.id == 105742694730457088 and (member.voice.mute or member.voice.deaf):
+    if member.id == 105742694730457088 and member.voice != None and (member.voice.mute or member.voice.deaf):
         await member.edit(mute=False)
         await member.edit(deafen=False)
     if after.channel == None and before.channel.category.name == "PERFORMANCE":
