@@ -48,7 +48,7 @@ ydl_options = {'format': 'bestaudio', 'noplaylist': 'True'}
 
 @bot.event
 async def on_ready():
-    await bot.change_presence(activity=discord.Activity(name="helping 🥊Brawlbox🥊", type=discord.ActivityType.playing))
+    await bot.change_presence(activity=discord.Activity(name="Use box>h to display commands.", type=discord.ActivityType.playing))
 
 @bot.command(name='h')
 async def help_message(ctx):
