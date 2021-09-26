@@ -78,6 +78,24 @@ async def help_message(ctx):
 
             *This will stop the song currently playing.*
 
+            ***Performance***
+
+            box>join
+
+            *Join the performance queue.*
+
+            box>leave
+
+            *Leave the performance queue.*
+
+            box>start
+
+            *Mutes everyone else so you can perform.*
+
+            box>finish
+
+            *Use when you have finished your performance.*
+
             ***Conversion and Downloading***
 
             box>wavtomp3 {Upload file}
