@@ -52,7 +52,69 @@ async def on_ready():
 
 @bot.command(name='h')
 async def help_message(ctx):
-    if ctx.channel.id == 805911876264525857 or ctx.channel.id == 805911876264525857 or ctx.channel.id == 806238209985085491 or ctx.channel.id == 805904615710523417 or ctx.channel.id == 805904638640783381 or ctx.channel.id == 845976543368445992:
+    if ctx.channel.id == 805911876264525857 or ctx.channel.id == 806238209985085491 or ctx.channel.id == 845976543368445992:
+        await ctx.channel.send(embed=discord.Embed(title="__**Help**__", description="""
+            __**Commands**__
+
+            ***Music***
+
+            box>play {Link}
+
+            *This will play the audio through discord with either a youtube or spotify link.*
+
+            box>skip
+
+            *This will skip the current song in the queue.*
+
+            box>pause
+
+            *This will pause the currently playing audio.*
+
+            box>resume
+
+            *This will continue the paused audio.*
+
+            box>stop
+
+            *This will stop the song currently playing.*
+
+            ***Performance***
+
+            box>join
+
+            *Join the performance queue.*
+
+            box>leave
+
+            *Leave the performance queue.*
+
+            box>start
+
+            *Mutes everyone else so you can perform.*
+
+            box>finish
+
+            *Use when you have finished your performance.*
+
+            ***Conversion and Downloading***
+
+            box>wavtomp3 {Upload file}
+
+            *This will convert the wav file you upload to an mp3 file.*
+
+            box>dlmp4 "[Youtube Link]"
+
+            *This will download youtube videos and send them as mp4s for you to download.*
+
+            box>dlmp3 "[Youtube Link]"
+
+            *This will download youtube videos and send them as mp3s for you to download.*
+
+            **If you have any issues, please report them to <@105742694730457088>.**
+            """, color=0xff0000)
+            )
+            
+    elif ctx.channel.id == 805904615710523417 or ctx.channel.id == 805904638640783381:
         await ctx.channel.send(embed=discord.Embed(title="__**Help**__", description="""
             __**Commands**__
 
