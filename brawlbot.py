@@ -983,12 +983,13 @@ async def on_voice_state_update(member, before, after):
     if member.id == 105742694730457088 and member.voice != None and (member.voice.mute or member.voice.deaf):
         await member.edit(mute=False)
         await member.edit(deafen=False)
-    if after.channel == None and before.channel.category.name == "PERFORMANCE":
+    if before.channel != None and before.channel.category.name == "PERFORMANCE":
         try:
             for i in range(len(before.channel.name[-1])):
                 if performanceInfo[int(before.channel.name[-1])-1][i].person == member:
+                    if performanceInfo[int(before.channel.name[-1])-1][i].performing:
+                        await discord.utils.get(member.guild.roles, name=before.channel.name).delete()
                     performanceInfo[int(before.channel.name[-1])-1].pop(i)
-                    await discord.utils.get(member.guild.roles, name=before.channel.name).delete()
                     await bot.get_channel(845976543368445992).send(f"<@{member.id}> has left the voice channel, so has been ejected from the queue.")
                     break
         except:
