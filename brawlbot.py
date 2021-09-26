@@ -19,6 +19,14 @@ f = open("token.txt", "r")
 token = f.readline()
 f.close()
 
+class VCQueue():
+
+    def __init__(self, vcid, person, position, performing):
+        self.vcid = vcid
+        self.person = person
+        self.position = position
+        self.performing = performing
+
 bot = commands.Bot(command_prefix='box>')
 
 queue = False
@@ -29,10 +37,12 @@ eventqueuedisplay = ""
 eventqueuestart = False
 voice = None
 
+performanceInfo = []
+
 is_playing = False
 is_paused = False
-music_queue = []
-currentlyPlaying = "*None*"
+musicqueue = []
+currentlyplaying = "*None*"
 vc = "Music Box"
 ydl_options = {'format': 'bestaudio', 'noplaylist': 'True'}
 
@@ -42,74 +52,89 @@ async def on_ready():
 
 @bot.command(name='h')
 async def help_message(ctx):
-    await ctx.channel.send(embed=discord.Embed(title="__**Help**__", description="""
-        __**Commands**__
+    if ctx.channel.id == 805911876264525857 or ctx.channel.id == 805911876264525857 or ctx.channel.id == 806238209985085491 or ctx.channel.id == 805904615710523417 or ctx.channel.id == 805904638640783381 or ctx.channel.id == 845976543368445992:
+        await ctx.channel.send(embed=discord.Embed(title="__**Help**__", description="""
+            __**Commands**__
 
-        box>play {Link}
+            ***Music***
 
-        *This will play the audio through discord with either a youtube or spotify link.
+            box>play {Link}
 
-        box>skip
+            *This will play the audio through discord with either a youtube or spotify link.*
 
-        *This will skip the current song in the queue.
+            box>skip
 
-        box>pause
+            *This will skip the current song in the queue.*
 
-        *This will pause the currently playing audio.
+            box>pause
 
-        box>resume
+            *This will pause the currently playing audio.*
 
-        *This will continue the paused audio.
+            box>resume
 
-        box>stop
+            *This will continue the paused audio.*
 
-        *This will stop the song currently playing.
+            box>stop
 
-        box>wavtomp3 {Upload file}
+            *This will stop the song currently playing.*
 
-        *This will convert the wav file you upload to an mp3 file.
+            ***Conversion and Downloading***
 
-        box>dlmp4 "[Youtube Link]"
+            box>wavtomp3 {Upload file}
 
-        *This will download youtube videos and send them as mp4s for you to download.*
+            *This will convert the wav file you upload to an mp3 file.*
 
-        box>dlmp3 "[Youtube Link]"
+            box>dlmp4 "[Youtube Link]"
 
-        *This will download youtube videos and send them as mp3s for you to download.*
+            *This will download youtube videos and send them as mp4s for you to download.*
 
-        ***Event Hosters Only***
+            box>dlmp3 "[Youtube Link]"
 
-        box>startevent "[Event Name]" [MembersCanType] [MembersCanSpeak] [Capacity] [NumberOfVCs] [EnableQueue]
+            *This will download youtube videos and send them as mp3s for you to download.*
 
-        *This is how to create an event. The 2nd, 3rd, and 6th arguments can only be "True" or "False", and the 4th and 5th can only be a number. (Note: the square brackets are just for placeholders and do not need to be put in the command.)*
+            ***Event Hosters Only***
 
-        box>endevent
+            box>startevent "[Event Name]" [MembersCanType] [MembersCanSpeak] [Capacity] [NumberOfVCs] [EnableQueue]
 
-        *When the event is over, this is used to clean up and delete the event channels.*
+            *This is how to create an event. The 2nd, 3rd, and 6th arguments can only be "True" or "False", and the 4th and 5th can only be a number. (Note: the square brackets are just for placeholders and do not need to be put in the command.)*
 
-        box>openeventqueue
+            box>endevent
 
-        *This opens the event queue and allows people to join the queue.*
+            *When the event is over, this is used to clean up and delete the event channels.*
 
-        box>closeeventqueue
+            box>openeventqueue
 
-        *This closes the event queue and prevents people from joining the queue. This is the default.*
+            *This opens the event queue and allows people to join the queue.*
 
-        box>starteventqueue
+            box>closeeventqueue
 
-        *This starts keeping track of the queue and removes people when the "nexteventqueue" command is used.*
+            *This closes the event queue and prevents people from joining the queue. This is the default.*
 
-        box>stopeventqueue
+            box>starteventqueue
 
-        *This stops the event queue tracking.*
+            *This starts keeping track of the queue and removes people when the "nexteventqueue" command is used.*
 
-        box>nexteventqueue
+            box>stopeventqueue
 
-        *This pings the next user on the queue and starts cleaning up the queue embed in the event queue channel.*
+            *This stops the event queue tracking.*
 
-        **If you have any issues, please report them to <@105742694730457088>.**
-        """, color=0xff0000)
-        )
+            box>nexteventqueue
+
+            *This pings the next user on the queue and starts cleaning up the queue embed in the event queue channel.*
+
+            ***Moderators Only***
+
+            box>clearqueue
+
+            *This clears the queue for either a performance or music.
+
+            box>skipqueue
+
+            *This skips the next person in the queue/currently performing.
+
+            **If you have any issues, please report them to <@105742694730457088>.**
+            """, color=0xff0000)
+            )
 
 def search_yt(item):
     global ydl_options
@@ -122,30 +147,29 @@ def search_yt(item):
 
 async def play_music(ctx):
     global is_playing
-    global music_queue
+    global musicqueue
     global voice
-    global currentlyPlaying
+    global currentlyplaying
     channel = discord.utils.get(ctx.guild.channels, name='Music Box')
-    if len(music_queue) > 0:
+    if len(musicqueue) > 0:
         is_playing = True
 
-        m_url = music_queue[0][0]['source']
+        m_url = musicqueue[0][0]['source']
 
         try: 
             await channel.connect()
             voice = discord.utils.get(bot.voice_clients, guild=ctx.guild)
         except: voice = discord.utils.get(bot.voice_clients, guild=ctx.guild)
 
-        currentlyPlaying = music_queue[0][0]['title']
-        await ctx.send(f"Currently playing: {currentlyPlaying}")
-
-        music_queue.pop(0)
+        currentlyplaying = musicqueue[0][0]['title']
+        await ctx.send(f"Currently playing: {currentlyplaying}")
+        musicqueue.pop(0)
         voice.play(discord.FFmpegPCMAudio(rf"{m_url}"), after=lambda e: play_music(ctx))
     while voice.is_playing() or is_paused:
         await asyncio.sleep(1)
     else:
-        currentlyPlaying = "*None*"
-        if len(music_queue) > 0:
+        currentlyplaying = "*None*"
+        if len(musicqueue) > 0:
             await play_music(ctx)
         is_playing = False
         await asyncio.sleep(15)
@@ -155,84 +179,335 @@ async def play_music(ctx):
             voice.stop()
             await voice.disconnect()
 
-@bot.command(name='play')
-async def play(ctx, *args):
-    global is_playing
-    global music_queue
-    channel = discord.utils.get(ctx.guild.channels, name='Music Box')
-    query = " ".join(args)
+@bot.command(name="join")
+async def join(ctx):
+    if ctx.channel.id == 845976543368445992:
+        global performanceInfo
+        if ctx.author.voice == None:
+            await ctx.channel.send("You need to be in a performance voice channel to use this command.")
+            return False
+        elif ctx.author.voice.channel.category.name != "PERFORMANCE":
+            await ctx.channel.send("You need to be in a performance voice channel to use this command.")
+            return False
+        try:
+            if len(performanceInfo) > int(ctx.author.voice.channel.name[-1])-1:
+                for i in range(len(performanceInfo[int(ctx.author.voice.channel.name[-1])-1])):
+                    if performanceInfo[int(ctx.author.voice.channel.name[-1])-1][i].person == ctx.author:
+                        await ctx.channel.send("You are already in the queue.")
+                        return False
+        except:
+            pass
+        if len(performanceInfo) > int(ctx.author.voice.channel.name[-1])-1:
+            performanceInfo[int(ctx.author.voice.channel.name[-1])-1].append(VCQueue(ctx.author.voice.channel.id, ctx.author, len(performanceInfo[int(ctx.author.voice.channel.name[-1])-1]), False))
+            await ctx.channel.send(f"<@{ctx.author.id}> has joined the queue.")
+        else:
+            temp = []
+            tempPosition = 0
+            if len(performanceInfo) > 0:
+                try:
+                    tempPosition = len(performanceInfo[int(ctx.author.voice.channel.name[-1])-1])
+                except:
+                    pass
+            temp.append(VCQueue(ctx.author.voice.channel.id, ctx.author, tempPosition, False))
+            performanceInfo.append(temp)
+            await ctx.channel.send(f"<@{ctx.author.id}> has joined the queue.")
 
-    song = search_yt(query)
-    if type(song) == type(True):
-        await ctx.send("Could not download the song. Incorrect format try another keyword. This could be due to playlist or a livestream.")
-    else:
-        await ctx.send("Song added to the queue")
-        music_queue.append([song, channel])
+@bot.command(name="leave")
+async def leave(ctx):
+    if ctx.channel.id == 845976543368445992:
+        global performanceInfo
+        if ctx.author.voice == None:
+            await ctx.channel.send("You need to be in a performance voice channel to use this command.")
+            return False
+        elif ctx.author.voice.channel.category.name != "PERFORMANCE":
+            await ctx.channel.send("You need to be in a performance voice channel to use this command.")
+            return False
+        try:
+            if len(performanceInfo) > int(ctx.author.voice.channel.name[-1])-1:
+                for i in range(len(performanceInfo[int(ctx.author.voice.channel.name[-1])-1])):
+                    if performanceInfo[int(ctx.author.voice.channel.name[-1])-1][i].person == ctx.author:
+                        await ctx.channel.send(f"<@{ctx.author.id}> has left the queue")
+                        if performanceInfo[int(ctx.author.voice.channel.name[-1])-1][i].performing:
+                            for member in discord.utils.get(ctx.guild.channels, name=ctx.author.voice.channel.name).members:
+                                if member.id != performanceInfo[int(ctx.author.voice.channel.name[-1])-1][i].person.id:
+                                    await ctx.author.voice.channel.set_permissions(ctx.guild.default_role, speak=True)
+                                    await member.move_to(discord.utils.get(ctx.guild.channels, name="Welcome to The Brawl Box"))
+                                    await member.move_to(ctx.author.voice.channel)
+                                else:
+                                    await discord.utils.get(ctx.guild.roles, name=ctx.author.voice.channel.name).delete()
+                        performanceInfo[int(ctx.author.voice.channel.name[-1])-1].pop(i)
+                        return False
+                await ctx.channel.send("You aren't in the queue.")
+        except:
+            pass
 
-        if is_playing == False:
-            await play_music(ctx)
+@bot.command(name="start")
+async def start(ctx):
+    if ctx.channel.id == 845976543368445992:
+        global performanceInfo
+        if ctx.author.voice == None:
+            await ctx.channel.send("You need to be in a performance voice channel to use this command.")
+            return False
+        elif ctx.author.voice.channel.category.name != "PERFORMANCE":
+            await ctx.channel.send("You need to be in a performance voice channel to use this command.")
+            return False
+        try:
+            for i in range(len(performanceInfo[int(ctx.author.voice.channel.name[-1])-1])):
+                if performanceInfo[int(ctx.author.voice.channel.name[-1])-1][i].person == ctx.author:
+                    if performanceInfo[int(ctx.author.voice.channel.name[-1])-1][i].performing:
+                        await ctx.channel.send("You are already performing.")
+                        return False
+                elif performanceInfo[int(ctx.author.voice.channel.name[-1])-1][i].performing:
+                    await ctx.channel.send("Someone else is currently performing.")
+                    return False
+        except:
+            pass
+        try:
+            if len(performanceInfo[int(ctx.author.voice.channel.name[-1])-1]) == 0:
+                await ctx.channel.send("The queue is empty.")
+        except:
+            await ctx.channel.send("The queue is empty.")
+        if len(performanceInfo[int(ctx.author.voice.channel.name[-1])-1]) != 0:
+            if ctx.author.voice.channel.category.name != "PERFORMANCE":
+                await ctx.channel.send("You need to be in a performance voice channel to use this command")
+            if ctx.author == performanceInfo[int(ctx.author.voice.channel.name[-1])-1][0].person:
+                performanceInfo[int(ctx.author.voice.channel.name[-1])-1][0].performing = True
+                await ctx.channel.send(f"<@{ctx.author.id}> is now performing.")
+                for member in discord.utils.get(ctx.guild.channels, name=ctx.author.voice.channel.name).members:
+                    if member.id != ctx.author.id:
+                        await ctx.author.voice.channel.set_permissions(ctx.guild.default_role, speak=False)
+                        await member.move_to(discord.utils.get(ctx.guild.channels, name="Welcome to The Brawl Box"))
+                        await member.move_to(ctx.author.voice.channel)
+                    else:
+                        await ctx.guild.create_role(name=ctx.author.voice.channel.name)
+                        role = discord.utils.get(ctx.guild.roles, name=ctx.author.voice.channel.name)
+                        await ctx.author.voice.channel.set_permissions(role, speak=True)
+                        await member.add_roles(role)
+            else:
+                await ctx.channel.send("You are not next in the queue.")
+
+@bot.command(name="finish")
+async def finish(ctx):
+    if ctx.channel.id == 845976543368445992:
+        global performanceInfo
+        if ctx.author.voice == None:
+            await ctx.channel.send("You need to be in a performance voice channel to use this command.")
+            return False
+        elif ctx.author.voice.channel.category.name != "PERFORMANCE":
+            await ctx.channel.send("You need to be in a performance voice channel to use this command.")
+            return False
+        try:
+            if len(performanceInfo[int(ctx.author.voice.channel.name[-1])-1]) == 0:
+                await ctx.channel.send("The queue is empty.")
+        except:
+            await ctx.channel.send("The queue is empty.")
+        try:
+            for i in range(len(performanceInfo[int(ctx.author.voice.channel.name[-1])-1])):
+                if performanceInfo[int(ctx.author.voice.channel.name[-1])-1][i].person == ctx.author:
+                    if performanceInfo[int(ctx.author.voice.channel.name[-1])-1][i].performing:
+                        await ctx.channel.send(f"<@{ctx.author.id}> has finished performing.")
+                        performanceInfo[int(ctx.author.voice.channel.name[-1])-1].pop(0)
+                        for member in discord.utils.get(ctx.guild.channels, name=ctx.author.voice.channel.name).members:
+                            if member.id != ctx.author.id:
+                                await ctx.author.voice.channel.set_permissions(ctx.guild.default_role, speak=True)
+                                await member.move_to(discord.utils.get(ctx.guild.channels, name="Welcome to The Brawl Box"))
+                                await member.move_to(ctx.author.voice.channel)
+                            else:
+                                await discord.utils.get(ctx.guild.roles, name=ctx.author.voice.channel.name).delete()
+                        
+                elif performanceInfo[int(ctx.author.voice.channel.name[-1])-1][i].performing:
+                    await ctx.channel.send("Someone else is currently performing.")
+                    return False
+        except:
+            pass
+
+@bot.command(name="skipqueue")
+@commands.has_any_role("📦ModBox📦", "📦AdminBox📦", "📦DemiBox📦", "📦BoxGod📦")
+async def skipqueue(ctx):
+    if ctx.channel.id == 845976543368445992:
+        global performanceInfo
+        if ctx.author.voice == None:
+            await ctx.channel.send("You need to be in a performance voice channel to use this command.")
+            return False
+        elif ctx.author.voice.channel.category.name != "PERFORMANCE":
+            await ctx.channel.send("You need to be in a performance voice channel to use this command.")
+            return False
+        try:
+            if len(performanceInfo[int(ctx.author.voice.channel.name[-1])-1]) == 0:
+                await ctx.channel.send("The queue is empty.")
+        except:
+            await ctx.channel.send("The queue is empty.")
+        
+        try:
+            if len(performanceInfo) > int(ctx.author.voice.channel.name[-1])-1:
+                for i in range(len(performanceInfo[int(ctx.author.voice.channel.name[-1])-1])):
+                    await ctx.channel.send(f"<@{performanceInfo[int(ctx.author.voice.channel.name[-1])-1][0].person.id}> has been skipped.")
+                    if performanceInfo[int(ctx.author.voice.channel.name[-1])-1][i].performing:
+                        for member in discord.utils.get(ctx.guild.channels, name=ctx.author.voice.channel.name).members:
+                            if member.id != performanceInfo[int(ctx.author.voice.channel.name[-1])-1][i].person.id:
+                                await ctx.author.voice.channel.set_permissions(ctx.guild.default_role, speak=True)
+                                await member.move_to(discord.utils.get(ctx.guild.channels, name="Welcome to The Brawl Box"))
+                                await member.move_to(ctx.author.voice.channel)
+                            else:
+                                await discord.utils.get(ctx.guild.roles, name=ctx.author.voice.channel.name).delete()
+                    performanceInfo[int(ctx.author.voice.channel.name[-1])-1].pop(0)
+                    return False
+        except:
+            pass
+
+@bot.command(name="clearqueue")
+@commands.has_any_role("📦ModBox📦", "📦AdminBox📦", "📦DemiBox📦", "📦BoxGod📦")
+async def clearqueue(ctx):
+    if ctx.channel.id == 845976543368445992:
+        global performanceInfo
+        if ctx.author.voice == None:
+            await ctx.channel.send("You need to be in a performance voice channel to use this command.")
+            return False
+        elif ctx.author.voice.channel.category.name != "PERFORMANCE":
+            await ctx.channel.send("You need to be in a performance voice channel to use this command.")
+            return False
+        try:
+            if len(performanceInfo[int(ctx.author.voice.channel.name[-1])-1]) == 0:
+                await ctx.channel.send("The queue is empty.")
+        except:
+            await ctx.channel.send("The queue is empty.")
+        
+        if len(performanceInfo) > int(ctx.author.voice.channel.name[-1])-1:
+            for i in range(len(performanceInfo[int(ctx.author.voice.channel.name[-1])-1])):
+                if performanceInfo[int(ctx.author.voice.channel.name[-1])-1][i].performing:
+                    for member in discord.utils.get(ctx.guild.channels, name=ctx.author.voice.channel.name).members:
+                        if member.id != performanceInfo[int(ctx.author.voice.channel.name[-1])-1][i].person.id:
+                            await ctx.author.voice.channel.set_permissions(ctx.guild.default_role, speak=True)
+                            await member.move_to(discord.utils.get(ctx.guild.channels, name="Welcome to The Brawl Box"))
+                            await member.move_to(ctx.author.voice.channel)
+                        else:
+                            await discord.utils.get(ctx.guild.roles, name=ctx.author.voice.channel.name).delete()
+                for i in range(len(performanceInfo[int(ctx.author.voice.channel.name[-1])-1])):
+                    performanceInfo[int(ctx.author.voice.channel.name[-1])-1].pop(0)
+                await ctx.channel.send("The queue has been cleared.")
+                return False
 
 @bot.command(name="queue")
 async def queue(ctx):
-    global music_queue
-    global currentlyPlaying
-    retval = ""
-    for i in range(0, len(music_queue)):
-        retval += "- " + music_queue[i][0]['title'] + "\n"
-    
-    if retval != "":
-        await ctx.channel.send(embed=discord.Embed(title="__**Queue**__", description=f"""
-        __Currently Playing__
-        - {currentlyPlaying}
+    if ctx.channel.id == 806238209985085491:
+        global musicqueue
+        global currentlyplaying
+        retval = ""
+        for i in range(0, len(musicqueue)):
+            retval += "- " + musicqueue[i][0]['title'] + "\n"
+        
+        if retval != "":
+            await ctx.channel.send(embed=discord.Embed(title="__**Queue**__", description=f"""
+            __Currently Playing__
+            - {currentlyplaying}
 
-        __Up next__
-        {retval}
-        """, color=0xff0000))
-    else:
-        await ctx.channel.send(embed=discord.Embed(title="__**Queue**__", description=f"""
-        __Currently Playing__
-        - {currentlyPlaying}
+            __Up Next__
+            {retval}
+            """, color=0xff0000))
+        else:
+            await ctx.channel.send(embed=discord.Embed(title="__**Queue**__", description=f"""
+            __Currently Playing__
+            - {currentlyplaying}
 
-        __Up next__
-        *No music in the queue*
-        """, color=0xff0000))
+            __Up Next__
+            - *No music in the queue*
+            """, color=0xff0000))
+    elif ctx.channel.id == 845976543368445992:
+        global performanceInfo
+        if ctx.author.voice == None:
+            await ctx.channel.send("You need to be in a performance voice channel to use this command.")
+            return False
+        elif ctx.author.voice.channel.category.name != "PERFORMANCE":
+            await ctx.channel.send("You need to be in a performance voice channel to use this command.")
+            return False
+        currentlyperforming_display = "*None*"
+        retval = ""
+        if len(performanceInfo) > 0:
+            for i in range(0, len(performanceInfo[int(ctx.author.voice.channel.name[-1])-1])):
+                if performanceInfo[int(ctx.author.voice.channel.name[-1])-1][i].performing:
+                    currentlyperforming_display = f"<@{performanceInfo[int(ctx.author.voice.channel.name[-1])-1][i].person.id}>"
+                else:
+                    retval += f"- <@{performanceInfo[int(ctx.author.voice.channel.name[-1])-1][i].person.id}>\n"
+        
+        if retval != "":
+            await ctx.channel.send(embed=discord.Embed(title=f"__**Performance {ctx.author.voice.channel.name[-1]} Queue**__", description=f"""
+            __Currently Performing__
+            - {currentlyperforming_display}
+
+            __Up Next__
+            {retval}
+            """, color=0xff0000))
+        else:
+            await ctx.channel.send(embed=discord.Embed(title=f"__**Performance {ctx.author.voice.channel.name[-1]} Queue**__", description=f"""
+            __Currently Performing__
+            - {currentlyperforming_display}
+
+            __Up Next__
+            - *No people in the queue*
+            """, color=0xff0000))
+
+@bot.command(name='play')
+async def play(ctx, *args):
+    if ctx.channel.id == 806238209985085491:
+        global is_playing
+        global musicqueue
+        channel = discord.utils.get(ctx.guild.channels, name='Music Box')
+        query = " ".join(args)
+
+        song = search_yt(query)
+        if type(song) == type(True):
+            await ctx.send("Could not download the song. Incorrect format try another keyword. This could be due to playlist or a livestream.")
+        else:
+            await ctx.send("Song added to the queue")
+            musicqueue.append([song, channel])
+
+            if is_playing == False:
+                await play_music(ctx)
 
 @bot.command(name="stop")
 async def skip(ctx):
-    global music_queue
-    global is_playing
-    global voice
-    music_queue = []
-    is_playing = False
-    voice = discord.utils.get(bot.voice_clients, guild=ctx.guild)
-    voice.stop()
-    await ctx.send("Music stopped")
+    if ctx.channel.id == 806238209985085491:
+        global musicqueue
+        global is_playing
+        global voice
+        musicqueue = []
+        is_playing = False
+        voice = discord.utils.get(bot.voice_clients, guild=ctx.guild)
+        voice.stop()
+        await ctx.send("Music stopped")
 
 @bot.command(name="skip")
 async def skip(ctx):
-    global voice
-    voice = discord.utils.get(bot.voice_clients, guild=ctx.guild)
-    voice.stop()
-    await ctx.send("Music skipped")
-    await play_music(ctx)
+    if ctx.channel.id == 806238209985085491:
+        global voice
+        global musicqueue
+        if len(musicqueue) > 0 or is_playing:
+            voice = discord.utils.get(bot.voice_clients, guild=ctx.guild)
+            voice.stop()
+            await ctx.send("Music skipped")
+        else:
+            await ctx.send("There is no music to be skipped")
+
 
 @bot.command(name="pause")
 async def skip(ctx):
-    global voice
-    global is_paused
-    is_paused = True
-    voice = discord.utils.get(bot.voice_clients, guild=ctx.guild)
-    voice.pause()
-    await ctx.send("Music paused")
+    if ctx.channel.id == 806238209985085491:
+        global voice
+        global is_paused
+        is_paused = True
+        voice = discord.utils.get(bot.voice_clients, guild=ctx.guild)
+        voice.pause()
+        await ctx.send("Music paused")
 
 @bot.command(name="resume")
 async def skip(ctx):
-    global voice
-    global is_paused
-    is_paused = False
-    voice = discord.utils.get(bot.voice_clients, guild=ctx.guild)
-    voice.resume()
-    await ctx.send("Music resumed")
+    if ctx.channel.id == 806238209985085491:
+        global voice
+        global is_paused
+        is_paused = False
+        voice = discord.utils.get(bot.voice_clients, guild=ctx.guild)
+        voice.resume()
+        await ctx.send("Music resumed")
 
 @bot.command(name='wavtomp3')
 async def wav_to_mp3(ctx):
@@ -622,7 +897,18 @@ category_update_active = False
 
 @bot.event
 async def on_voice_state_update(member, before, after):
+    global performanceInfo
     global category_update_active
+    if after.channel == None and before.channel.category.name == "PERFORMANCE":
+        try:
+            for i in range(len(before.channel.name[-1])):
+                if performanceInfo[int(before.channel.name[-1])-1][i].person == member:
+                    performanceInfo[int(before.channel.name[-1])-1].pop(i)
+                    await discord.utils.get(member.guild.roles, name=before.channel.name).delete()
+                    await bot.get_channel(845976543368445992).send(f"<@{member.id}> has left the voice channel, so has been ejected from the queue.")
+                    break
+        except:
+            pass
     while category_update_active:
         await asyncio.sleep(1)
     category_update_active = True
@@ -641,5 +927,6 @@ async def on_voice_state_update(member, before, after):
 @bot.event
 async def on_command_error(ctx, error):
     await ctx.send(error)
+    print(error)
 
 bot.run(token)
