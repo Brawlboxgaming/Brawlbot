@@ -987,14 +987,21 @@ async def on_voice_state_update(member, before, after):
     if member.id == 105742694730457088 and member.voice != None and (member.voice.mute or member.voice.deaf):
         await member.edit(mute=False)
         await member.edit(deafen=False)
-    if before.channel != None and before.channel.category.name == "PERFORMANCE":
+    if before != None and before.channel != None and before.channel.category != None and before.channel.category.name == "PERFORMANCE":
         try:
             for i in range(len(before.channel.name[-1])):
                 if performanceInfo[int(before.channel.name[-1])-1][i].person == member:
                     if performanceInfo[int(before.channel.name[-1])-1][i].performing:
-                        await discord.utils.get(member.guild.roles, name=before.channel.name).delete()
+                        left = performanceInfo[int(before.channel.name[-1])-1][i].person.id
+                        for member in discord.utils.get(before.channel.guild.channels, name=before.channel.name).members:
+                                if member.id != performanceInfo[int(before.channel.name[-1])-1][i].person.id:
+                                    await before.channel.set_permissions(before.channel.guild.default_role, speak=True)
+                                    await member.move_to(discord.utils.get(before.channel.guild.channels, name="Welcome to The Brawl Box"))
+                                    await member.move_to(before.channel)
+                                else:
+                                    await discord.utils.get(before.guild.roles, name=before.channel.name).delete()
                     performanceInfo[int(before.channel.name[-1])-1].pop(i)
-                    await bot.get_channel(845976543368445992).send(f"<@{member.id}> has left the voice channel, so has been ejected from the queue.")
+                    await bot.get_channel(845976543368445992).send(f"<@{left}> has left the voice channel, so has been ejected from the queue.")
                     break
         except:
             pass
@@ -1016,6 +1023,6 @@ async def on_voice_state_update(member, before, after):
 @bot.event
 async def on_command_error(ctx, error):
     await ctx.send(error)
-    print(error)
+    #print(error)
 
 bot.run(token)
