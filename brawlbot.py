@@ -244,7 +244,11 @@ async def play_music(ctx):
         currentlyplaying = musicqueue[0][0]['title']
         await ctx.send(f"Currently playing: {currentlyplaying}")
         musicqueue.pop(0)
-        voice.play(discord.FFmpegPCMAudio(rf"{m_url}"), after=lambda e: play_music(ctx))
+        ffmpeg_options = {
+            'options': '-vn',
+            "before_options": "-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5"
+        }
+        voice.play(discord.FFmpegPCMAudio(rf"{m_url}", **ffmpeg_options), after=lambda e: play_music(ctx))
     while voice.is_playing() or is_paused:
         await asyncio.sleep(1)
     else:
