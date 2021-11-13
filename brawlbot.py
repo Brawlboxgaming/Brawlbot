@@ -684,22 +684,27 @@ async def check_shift(ctx, day="0", month="0", year="0"):
     try:
         calcTmp = dateutil.parser.parse((day + "/" + month + "/" + year), dayfirst=True).timestamp()/86400/2-1.5
         startOfShift = calcTmp % 4
+        timeOfShift = (calcTmp + 4) % 8
+        if timeOfShift < 2.0 or timeOfShift >= 6.0:
+            hours = "Days"
+        else:
+            hours = "Nights"
         if startOfShift == 0.0:
-            await ctx.message.author.send("First day of shift.")
+            await ctx.message.author.send("First day of shift. " + hours + ".")
         elif startOfShift == 0.5:
-            await ctx.message.author.send("Second day of shift.")
+            await ctx.message.author.send("Second day of shift. " + hours + ".")
         elif startOfShift == 1.0:
-            await ctx.message.author.send("Third day of shift.")
+            await ctx.message.author.send("Third day of shift. " + hours + ".")
         elif startOfShift == 1.5:
-            await ctx.message.author.send("Fourth day of shift.")
+            await ctx.message.author.send("Fourth day of shift. " + hours + ".")
         elif startOfShift == 2.0:
-            await ctx.message.author.send("First day off.")
+            await ctx.message.author.send("First day off. " + hours + " next.")
         elif startOfShift == 2.5:
-            await ctx.message.author.send("Second day off.")
+            await ctx.message.author.send("Second day off. " + hours + " next.")
         elif startOfShift == 3.0:
-            await ctx.message.author.send("Third day off.")
+            await ctx.message.author.send("Third day off. " + hours + " next.")
         elif startOfShift == 3.5:
-            await ctx.message.author.send("Fourth day off.")
+            await ctx.message.author.send("Fourth day off. " + hours + " next.")
     except:
         pass
 
