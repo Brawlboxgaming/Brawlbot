@@ -9,6 +9,8 @@ from discord.channel import VocalGuildChannel
 from moviepy.editor import *
 import youtube_dl as Youtube
 import pydub
+import dateutil.parser
+from datetime import date
 
 import discord
 import discord.voice_client
@@ -550,7 +552,7 @@ async def play(ctx, *args):
                 await play_music(ctx)
 
 @bot.command(name="stop")
-async def skip(ctx):
+async def stop(ctx):
     if ctx.channel.id == 806238209985085491:
         global musicqueue
         global is_playing
@@ -575,7 +577,7 @@ async def skip(ctx):
 
 
 @bot.command(name="pause")
-async def skip(ctx):
+async def pause(ctx):
     if ctx.channel.id == 806238209985085491:
         global voice
         global is_paused
@@ -585,7 +587,7 @@ async def skip(ctx):
         await ctx.send("Music paused")
 
 @bot.command(name="resume")
-async def skip(ctx):
+async def resume(ctx):
     if ctx.channel.id == 806238209985085491:
         global voice
         global is_paused
@@ -668,6 +670,38 @@ async def mp3_get(ctx, YoutubeLink):
 
     if os.path.exists(mp3_file):
         os.remove(mp3_file)
+
+@bot.command(name='checkshift')
+async def check_shift(ctx, day="0", month="0", year="0"):
+    if day > "31":
+        day = "let's break the code B)"
+    if day == "0":
+        day = date.today().strftime("%d")
+    if month == "0":
+        month = date.today().strftime("%m")
+    if year == "0":
+        year = date.today().strftime("%Y")
+    try:
+        calcTmp = dateutil.parser.parse((day + "/" + month + "/" + year), dayfirst=True).timestamp()/86400/2-1.5
+        startOfShift = calcTmp % 4
+        if startOfShift == 0.0:
+            await ctx.message.author.send("First day of shift.")
+        elif startOfShift == 0.5:
+            await ctx.message.author.send("Second day of shift.")
+        elif startOfShift == 1.0:
+            await ctx.message.author.send("Third day of shift.")
+        elif startOfShift == 1.5:
+            await ctx.message.author.send("Fourth day of shift.")
+        elif startOfShift == 2.0:
+            await ctx.message.author.send("First day off.")
+        elif startOfShift == 2.5:
+            await ctx.message.author.send("Second day off.")
+        elif startOfShift == 3.0:
+            await ctx.message.author.send("Third day off.")
+        elif startOfShift == 3.5:
+            await ctx.message.author.send("Fourth day off.")
+    except:
+        pass
 
 @bot.command(name='startevent')
 @commands.has_any_role("Event Hoster (NA)", "Event Hoster (EU)")
@@ -1023,6 +1057,6 @@ async def on_voice_state_update(member, before, after):
 @bot.event
 async def on_command_error(ctx, error):
     await ctx.send(error)
-    #print(error)
+    print(error)
 
 bot.run(token)
