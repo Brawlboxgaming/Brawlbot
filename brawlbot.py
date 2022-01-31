@@ -30,6 +30,7 @@ class VCQueue():
         self.performing = performing
 
 bot = commands.Bot(command_prefix='box>')
+bot.remove_command("help")
 
 queue = False
 eventqueueopen = False
@@ -50,9 +51,9 @@ ydl_options = {'format': 'bestaudio', 'noplaylist': 'True'}
 
 @bot.event
 async def on_ready():
-    await bot.change_presence(activity=discord.Activity(name="Use box>h to display commands.", type=discord.ActivityType.playing))
+    await bot.change_presence(activity=discord.Activity(name="Use box>help to display commands.", type=discord.ActivityType.playing))
 
-@bot.command(name='h')
+@bot.command(name='help')
 async def help_message(ctx):
     if ctx.channel.id == 805911876264525857 or ctx.channel.id == 806238209985085491 or ctx.channel.id == 845976543368445992:
         await ctx.channel.send(embed=discord.Embed(title="__**Help**__", description="""
@@ -626,7 +627,7 @@ async def mp4_get(ctx, YoutubeLink):
     }
     with Youtube.YoutubeDL(outs) as ytdl:
 	    ytdl.download([YoutubeLink])
-
+        
     print(os.getcwd())
     
     os.system(rf'sudo cp "{title}.mp4" /var/www/brawlbox/')
