@@ -117,13 +117,7 @@ namespace Brawlbot
 
         public async Task RunAsync()
         {
-            var json = string.Empty;
-
-            using (var fs = File.OpenRead("config.json"))
-            using (var sr = new StreamReader(fs, new UTF8Encoding(false)))
-                json = await sr.ReadToEndAsync().ConfigureAwait(false);
-
-            var configJson = JsonConvert.DeserializeObject<ConfigJson>(json);
+            var configJson = JsonConvert.DeserializeObject<ConfigJson>(File.ReadAllText("config.json"));
 
             var config = new DiscordConfiguration
             {
@@ -131,7 +125,7 @@ namespace Brawlbot
                 TokenType = TokenType.Bot,
                 AutoReconnect = true,
                 MinimumLogLevel = LogLevel.Debug,
-                Intents = DiscordIntents.All
+                Intents = DiscordIntents.All,
             };
 
             Client = new DiscordClient(config);

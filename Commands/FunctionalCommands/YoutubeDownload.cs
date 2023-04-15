@@ -1,8 +1,13 @@
 ﻿using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
+using Newtonsoft.Json;
 using System;
 using System.Diagnostics;
+using System.IO;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using YoutubeExplode;
 using YoutubeExplode.Converter;
@@ -27,7 +32,12 @@ namespace Brawlbot.Commands
                 };
                 await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed));
 
-                var youtube = new YoutubeClient();
+                var configJson = JsonConvert.DeserializeObject<ConfigJson>(File.ReadAllText("config.json"));
+
+                var authHttpClient = new HttpClient();
+                authHttpClient.DefaultRequestHeaders.Add("Cookie", configJson.YoutubeCookie);
+
+                var youtube = new YoutubeClient(authHttpClient);
 
                 var streamManifest = await youtube.Videos.Streams.GetManifestAsync(url);
 
