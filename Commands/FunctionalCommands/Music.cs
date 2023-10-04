@@ -1,9 +1,9 @@
-﻿using DSharpPlus;
+﻿using Brawlbot.Class;
+using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.Lavalink;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.Attributes;
-using DSharpPlus.VoiceNext;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -71,7 +71,7 @@ namespace Brawlbot.Commands
         public async Task Play(InteractionContext ctx,
             [Option("Search", "The track you would like to search.")] string search)
         {
-            await ctx.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder() { IsEphemeral = true });
+            await ctx.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder() { IsEphemeral = !ctx.Interaction.Channel.IsPrivate });
             try
             {
                 if (!InVC(ctx))
@@ -117,7 +117,7 @@ namespace Brawlbot.Commands
         [SlashCommand("pause", "Pauses the current track.")]
         public async Task Pause(InteractionContext ctx)
         {
-            await ctx.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder() { IsEphemeral = true });
+            await ctx.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder() { IsEphemeral = !ctx.Interaction.Channel.IsPrivate });
             try
             {
                 if (!InVC(ctx))
@@ -146,7 +146,7 @@ namespace Brawlbot.Commands
         [SlashCommand("resume", "Resumes the current track.")]
         public async Task Resume(InteractionContext ctx)
         {
-            await ctx.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder() { IsEphemeral = true });
+            await ctx.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder() { IsEphemeral = !ctx.Interaction.Channel.IsPrivate });
             try
             {
                 if (!InVC(ctx))
@@ -181,7 +181,7 @@ namespace Brawlbot.Commands
         [SlashCommand("voteskip", "Votes to skip the current track.")]
         public async Task VoteSkip(InteractionContext ctx)
         {
-            await ctx.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder() { IsEphemeral = true });
+            await ctx.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder() { IsEphemeral = !ctx.Interaction.Channel.IsPrivate });
             try
             {
                 IReadOnlyList<DiscordMember> users = Guild.GetChannel(1096091897539350679).Users;
@@ -250,7 +250,7 @@ namespace Brawlbot.Commands
         [SlashCommand("queue", "Displays the current queue.")]
         public async Task GetQueue(InteractionContext ctx)
         {
-            await ctx.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder() { IsEphemeral = true });
+            await ctx.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder() { IsEphemeral = !ctx.Interaction.Channel.IsPrivate });
             try
             {
                 var conn = GetLavalinkConnection();
@@ -296,7 +296,7 @@ namespace Brawlbot.Commands
         [SlashRequireOwner]
         public async Task ClearQueue(InteractionContext ctx)
         {
-            await ctx.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder() { IsEphemeral = true });
+            await ctx.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder() { IsEphemeral = !ctx.Interaction.Channel.IsPrivate });
             try
             {
                 Queue = new List<LavalinkTrack>();
@@ -312,7 +312,7 @@ namespace Brawlbot.Commands
         [SlashRequireOwner]
         public async Task Skip(InteractionContext ctx)
         {
-            await ctx.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder() { IsEphemeral = true });
+            await ctx.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder() { IsEphemeral = !ctx.Interaction.Channel.IsPrivate });
             try
             {
                 if (!InVC(ctx))

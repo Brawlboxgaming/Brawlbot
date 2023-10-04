@@ -1,4 +1,5 @@
-﻿using DSharpPlus;
+﻿using Brawlbot.Class;
+using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using Newtonsoft.Json;
@@ -8,6 +9,7 @@ using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Threading;
 using System.Threading.Tasks;
 using YoutubeExplode;
 using YoutubeExplode.Converter;
@@ -21,7 +23,7 @@ namespace Brawlbot.Commands
         public async Task DownloadMP4FromYT(InteractionContext ctx,
             [Option("youtube-url", "The YouTube link you would like to download.")] string url)
         {
-            await ctx.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder() { IsEphemeral = true });
+            await ctx.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder() { IsEphemeral = !ctx.Interaction.Channel.IsPrivate });
             try
             {
                 var embed = new DiscordEmbedBuilder
@@ -105,7 +107,7 @@ namespace Brawlbot.Commands
         public async Task DownloadMP3FromYT(InteractionContext ctx,
             [Option("youtube-url", "The YouTube link you would like to download.")] string url)
         {
-            await ctx.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder() { IsEphemeral = true });
+            await ctx.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder() { IsEphemeral = !ctx.Interaction.Channel.IsPrivate });
             try
             {
                 var embed = new DiscordEmbedBuilder
@@ -116,7 +118,12 @@ namespace Brawlbot.Commands
                 };
                 await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed));
 
-                var youtube = new YoutubeClient();
+                var configJson = JsonConvert.DeserializeObject<ConfigJson>(File.ReadAllText("config.json"));
+
+                var authHttpClient = new HttpClient();
+                authHttpClient.DefaultRequestHeaders.Add("Cookie", configJson.YoutubeCookie);
+
+                var youtube = new YoutubeClient(authHttpClient);
 
                 var streamManifest = await youtube.Videos.Streams.GetManifestAsync(url);
 

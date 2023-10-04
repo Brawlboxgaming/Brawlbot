@@ -1,11 +1,9 @@
-﻿using DSharpPlus;
-using DSharpPlus.CommandsNext;
-using DSharpPlus.CommandsNext.Attributes;
+﻿using Brawlbot.Class;
+using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.Attributes;
 using System;
-using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace Brawlbot.Commands
@@ -19,7 +17,7 @@ namespace Brawlbot.Commands
         {
             try
             {
-                await ctx.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder() { IsEphemeral = true });
+                await ctx.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder() { IsEphemeral = !ctx.Interaction.Channel.IsPrivate });
                 DiscordChannel channel = ctx.Channel;
                 foreach (var c in ctx.Guild.Channels)
                 {

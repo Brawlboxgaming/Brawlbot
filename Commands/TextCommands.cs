@@ -10,7 +10,7 @@ namespace Brawlbot.Commands
         [SlashCommand("help", "Displays all available commands.")]
         public async Task Help(InteractionContext ctx)
         {
-            await ctx.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder() { IsEphemeral = true });
+            await ctx.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder() { IsEphemeral = !ctx.Interaction.Channel.IsPrivate });
 
             string description = "__**Standard Commands:**__" +
                 "\n/help" +
