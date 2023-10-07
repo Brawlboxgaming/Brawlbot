@@ -11,7 +11,7 @@ namespace Brawlbot.Class
         {
             DiscordEmbedBuilder embed = new()
             {
-                Color = new DiscordColor("#FFFFFF"),
+                Color = new DiscordColor("#FF0000"),
                 Title = $"__**Error:**__",
                 Description = $"*{ex.Message}*",
                 Footer = new DiscordEmbedBuilder.EmbedFooter
@@ -35,7 +35,7 @@ namespace Brawlbot.Class
 
             embed = new DiscordEmbedBuilder
             {
-                Color = new DiscordColor("#FFFFFF"),
+                Color = new DiscordColor("#FF0000"),
                 Title = $"__**Error:**__",
                 Description = $"'/{ctx.Interaction.Data.Name}{options}' was used by {ctx.User.Mention}." +
                 $"\n\n{ex}",
@@ -73,7 +73,7 @@ namespace Brawlbot.Class
 
                 embed = new DiscordEmbedBuilder
                 {
-                    Color = new DiscordColor("#FFFFFF"),
+                    Color = new DiscordColor("#FF0000"),
                     Title = $"__**Error:**__",
                     Description = $"'/{ctx.Interaction.Data.Name}{options}' was used by  {ctx.User.Mention}." +
                     $"\n\n{ex}",
@@ -87,7 +87,7 @@ namespace Brawlbot.Class
             {
                 embed = new DiscordEmbedBuilder
                 {
-                    Color = new DiscordColor("#FFFFFF"),
+                    Color = new DiscordColor("#FF0000"),
                     Title = $"__**Error:**__",
                     Description = $"{ex}",
                     Footer = new DiscordEmbedBuilder.EmbedFooter
@@ -112,7 +112,7 @@ namespace Brawlbot.Class
 
             DiscordEmbedBuilder embed = new()
             {
-                Color = new DiscordColor("#FFFFFF"),
+                Color = new DiscordColor("#FF0000"),
                 Title = $"__**Error:**__",
                 Description = $"\n\n{ex}",
                 Footer = new DiscordEmbedBuilder.EmbedFooter

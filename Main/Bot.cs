@@ -20,6 +20,7 @@ namespace Brawlbot
     public class Bot
     {
         public Interactions interactions = new();
+        public Events events = new();
         public static DiscordClient Client { get; private set; }
         public SlashCommandsExtension SlashCommands { get; private set; }
         public async Task RunAsync()
@@ -69,6 +70,9 @@ namespace Brawlbot
             var lavalink = Client.UseLavalink();
 
             Client.UseVoiceNext();
+
+            await interactions.AssignAllInteractions();
+            await events.AssignAllEvents();
 
             await Client.ConnectAsync();
 #if !DEBUG

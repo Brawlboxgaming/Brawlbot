@@ -3,6 +3,7 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -21,7 +22,7 @@ namespace Brawlbot
 
         private async Task LogInteractions(DiscordClient client, InteractionCreateEventArgs eventArgs)
         {
-            DiscordChannel channel = Bot.Client.GetGuildAsync(984507807393017976).Result.GetChannel(1144368862507303003);
+            DiscordChannel channel = Bot.Client.GetGuildAsync(984507807393017976).Result.GetChannel(1159213708552187945);
 
             string options = "";
 
@@ -35,7 +36,7 @@ namespace Brawlbot
 
             DiscordEmbedBuilder embed = new()
             {
-                Color = new DiscordColor("#FFFFFF"),
+                Color = new DiscordColor("#FF0000"),
                 Title = $"__**Notice:**__",
                 Description = $"'/{eventArgs.Interaction.Data.Name}{options}' was used by {eventArgs.Interaction.User.Mention}.",
                 Footer = new DiscordEmbedBuilder.EmbedFooter
@@ -51,7 +52,7 @@ namespace Brawlbot
 
         private async Task UpdateVoiceChannels(DiscordClient client, VoiceStateUpdateEventArgs eventArgs)
         {
-        again:
+            again:
             if (_updatingChannels)
             {
                 _eventDuringChannelUpdate = true;
@@ -114,10 +115,10 @@ namespace Brawlbot
                     }
                     else
                     {
-                        DiscordChannel logChannel = Bot.Client.GetGuildAsync(984507807393017976).Result.GetChannel(1144368862507303003);
+                        DiscordChannel logChannel = Bot.Client.GetGuildAsync(984507807393017976).Result.GetChannel(1159213708552187945);
                         DiscordEmbedBuilder embed = new()
                         {
-                            Color = new DiscordColor("#FFFFFF"),
+                            Color = new DiscordColor("#FF0000"),
                             Title = $"__**Notice:**__",
                             Description = $"Deleted VC {channelInfos[chIx].Channel.Name}.",
                             Footer = new DiscordEmbedBuilder.EmbedFooter
@@ -128,6 +129,27 @@ namespace Brawlbot
 
                         await logChannel.SendMessageAsync(embed);
 
+                        if (channelInfos[chIx].Channel.GetMessagesAsync(1000).Result.Count > 0) {
+                            string txtFile = $"Last 1000 Messages from {channelInfos[chIx].Channel.Name}:\r\n";
+                            var messages = channelInfos[chIx].Channel.GetMessagesAsync(1000).Result.ToList();
+                            messages.Reverse();
+                            foreach (var message in messages)
+                            {
+                                txtFile += $"{message.CreationTimestamp} - {message.Content}";
+                                foreach (var attachment in message.Attachments)
+                                {
+                                    txtFile += $" {attachment.Url}";
+                                }
+                                txtFile += "\r\n";
+                            }
+                            string fileName = $"{DateTime.Now.ToString().Replace(":", "").Replace("/", "-")} - {channelInfos[chIx].Channel.Name}.txt";
+                            await File.WriteAllTextAsync(fileName, txtFile);
+                            Stream stream = File.Open(fileName, FileMode.Open);
+                            await logChannel.SendMessageAsync(new DiscordMessageBuilder().AddFile(fileName, stream));
+                            stream.Close();
+                            await stream.DisposeAsync();
+                            File.Delete(fileName);
+                        }
                         await channelInfos[chIx].Channel.DeleteAsync();
                         channelInfos.RemoveAt(chIx);
                         chIx--;
@@ -142,10 +164,10 @@ namespace Brawlbot
             {
                 if (ch.Number != curNum)
                 {
-                    DiscordChannel logChannel = Bot.Client.GetGuildAsync(984507807393017976).Result.GetChannel(1144368862507303003);
+                    DiscordChannel logChannel = Bot.Client.GetGuildAsync(984507807393017976).Result.GetChannel(1159213708552187945);
                     DiscordEmbedBuilder embed = new()
                     {
-                        Color = new DiscordColor("#FFFFFF"),
+                        Color = new DiscordColor("#FF0000"),
                         Title = $"__**Notice:**__",
                         Description = $"Renamed VC {ch.Channel.Name} to {name} #{curNum}.",
                         Footer = new DiscordEmbedBuilder.EmbedFooter
@@ -168,10 +190,10 @@ namespace Brawlbot
                 DiscordChannel lastChannel = channelInfos.Last().Channel;
                 await guild.CreateChannelAsync($"{name} #{curNum}", ChannelType.Voice, parent: lastChannel.Parent, position: lastChannel.Position);
 
-                DiscordChannel logChannel = Bot.Client.GetGuildAsync(984507807393017976).Result.GetChannel(1144368862507303003);
+                DiscordChannel logChannel = Bot.Client.GetGuildAsync(984507807393017976).Result.GetChannel(1159213708552187945);
                 DiscordEmbedBuilder embed = new()
                 {
-                    Color = new DiscordColor("#FFFFFF"),
+                    Color = new DiscordColor("#FF0000"),
                     Title = $"__**Notice:**__",
                     Description = $"Created VC {name} #{curNum}.",
                     Footer = new DiscordEmbedBuilder.EmbedFooter

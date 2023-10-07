@@ -333,9 +333,23 @@ ASALocalRun/
 # Local History for Visual Studio
 .localhistory/
 
-*.mp4
-*.mp3
-*.webm
+*.json
+*.exe
+*.xml
 *.config
-FodyWeavers.xsd
-FodyWeavers.xml
+*.xsd
+/Brawlbot/Properties/AssemblyInfo.cs
+/Brawlbot/Commands/FunctionalCommands/Testing.cs
+/Brawlbot/ClassOrStruct/Util.cs
+/Brawlbot/Brawlbot.csproj
+/Brawlbot.sln
+*.p12
+*.dll
+*.szs
+*.bin
+[Rr]esources/
+Brawlbot/Util.cs
+.editorconfig
+Brawlbot/lastUpdated.txt
+Brawlbot/Settings.job
+/Brawlbot/Main/Util.cs
