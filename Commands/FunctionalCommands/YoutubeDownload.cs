@@ -23,7 +23,7 @@ namespace Brawlbot.Commands
         public async Task DownloadMP4FromYT(InteractionContext ctx,
             [Option("youtube-url", "The YouTube link you would like to download.")] string url)
         {
-            await ctx.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder() { IsEphemeral = !ctx.Interaction.Channel.IsPrivate });
+            await ctx.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder() { IsEphemeral = !(ctx.Channel.Id == 1207783397045567579 || ctx.Channel.IsPrivate) });
             try
             {
                 var embed = new DiscordEmbedBuilder
@@ -49,22 +49,16 @@ namespace Brawlbot.Commands
 
                 var video = await youtube.Videos.GetAsync(url);
 
-                var title = video.Title.Replace("\"", "")
-                     .Replace("(", "[")
-                     .Replace(")", "]")
-                     .Replace(" ", "_")
-                     .Replace("&", "and")
-                     .Replace("\\", "_")
-                     .Replace("/", "_")
-                     .Replace(":", "_")
-                     .Replace("*", "_")
-                     .Replace("?", "_")
-                     .Replace("\"", "_")
-                     .Replace("<", "_")
-                     .Replace(">", "_")
-                     .Replace("|", "_")
-                     .Replace("#", "")
-                     .Replace("'", "");
+                var title = video.Title.Replace("\\", "")
+                    .Replace("/", "")
+                    .Replace(":", "")
+                    .Replace("*", "")
+                    .Replace("?", "")
+                    .Replace("\"", "")
+                    .Replace("<", "")
+                    .Replace(">", "")
+                    .Replace("|", "")
+                    .Replace("&", "and");
 
                 embed = new DiscordEmbedBuilder
                 {
@@ -78,7 +72,7 @@ namespace Brawlbot.Commands
 
                 var processInfo = new ProcessStartInfo();
                 processInfo.FileName = @"C:\Windows\system32\cmd.exe";
-                processInfo.Arguments = $"/C move /y {title}.mp4 C:/Files/Brawlbot/";
+                processInfo.Arguments = $"/C move /y \"{title}.mp4\" C:/Files/Brawlbot/";
                 processInfo.CreateNoWindow = true;
                 processInfo.WindowStyle = ProcessWindowStyle.Hidden;
                 processInfo.UseShellExecute = false;
@@ -93,7 +87,7 @@ namespace Brawlbot.Commands
                 {
                     Color = new DiscordColor("#FF0000"),
                     Title = "__**Success:**__",
-                    Description = $"https://files.brawlbox.co.uk/Brawlbot/{title}.mp4"
+                    Description = $"[{title}](https://files.brawlbox.co.uk/Brawlbot/{title.Replace(" ", "%20")}.mp4)"
                 };
                 await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed));
             }
@@ -107,7 +101,7 @@ namespace Brawlbot.Commands
         public async Task DownloadMP3FromYT(InteractionContext ctx,
             [Option("youtube-url", "The YouTube link you would like to download.")] string url)
         {
-            await ctx.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder() { IsEphemeral = !ctx.Interaction.Channel.IsPrivate });
+            await ctx.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder() { IsEphemeral = !(ctx.Channel.Id == 1207783397045567579 || ctx.Channel.IsPrivate) });
             try
             {
                 var embed = new DiscordEmbedBuilder
@@ -132,22 +126,16 @@ namespace Brawlbot.Commands
 
                 var video = await youtube.Videos.GetAsync(url);
 
-                var title = video.Title.Replace("\"", "'")
-                    .Replace("(", "[")
-                    .Replace(")", "]")
-                    .Replace(" ", "_")
-                    .Replace("&", "and")
-                    .Replace("\\", "_")
-                    .Replace("/", "_")
-                    .Replace(":", "_")
-                    .Replace("*", "_")
-                    .Replace("?", "_")
-                    .Replace("\"", "_")
-                    .Replace("<", "_")
-                    .Replace(">", "_")
-                    .Replace("|", "_")
-                    .Replace("#", "")
-                    .Replace("'", ""); ;
+                var title = video.Title.Replace("\\", "")
+                    .Replace("/", "")
+                    .Replace(":", "")
+                    .Replace("*", "")
+                    .Replace("?", "")
+                    .Replace("\"", "")
+                    .Replace("<", "")
+                    .Replace(">", "")
+                    .Replace("|", "")
+                    .Replace("&", "and");
 
                 embed = new DiscordEmbedBuilder
                 {
@@ -161,7 +149,7 @@ namespace Brawlbot.Commands
 
                 var processInfo = new ProcessStartInfo();
                 processInfo.FileName = @"C:\Windows\system32\cmd.exe";
-                processInfo.Arguments = $"/C move /y {title}.mp3 C:/Files/Brawlbot/";
+                processInfo.Arguments = $"/C move /y \"{title}.mp3\" C:/Files/Brawlbot/";
                 processInfo.CreateNoWindow = true;
                 processInfo.WindowStyle = ProcessWindowStyle.Hidden;
                 processInfo.UseShellExecute = false;
@@ -176,7 +164,7 @@ namespace Brawlbot.Commands
                 {
                     Color = new DiscordColor("#FF0000"),
                     Title = "__**Success:**__",
-                    Description = $"https://files.brawlbox.co.uk/Brawlbot/{title}.mp3"
+                    Description = $"[{title}](https://files.brawlbox.co.uk/Brawlbot/{title.Replace(" ", "%20")}.mp3)"
                 };
                 await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed));
             }

@@ -4,16 +4,13 @@ using DSharpPlus.Entities;
 using DSharpPlus.Lavalink;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.Attributes;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace Brawlbot.Commands
 {
     public class Music : ApplicationCommandModule
     {
-        public static DiscordGuild Guild = Bot.Client.GetGuildAsync(984507807393017976).Result;
+        public static DiscordGuild Guild = Bot.Client.GetGuildAsync(1207775700883476580).Result;
 
         public static LavalinkExtension LavaLink = Bot.Client.GetLavalink();
         public static List<LavalinkTrack> Queue = new List<LavalinkTrack>();
@@ -31,7 +28,7 @@ namespace Brawlbot.Commands
 
         public bool InVC(InteractionContext ctx)
         {
-            DiscordChannel musicbox = Guild.GetChannel(1096091897539350679);
+            DiscordChannel musicbox = Guild.GetChannel(1207783428695658566);
             if (musicbox.Users.Contains(ctx.Member))
             {
                 return true;
@@ -49,7 +46,7 @@ namespace Brawlbot.Commands
             }
             if (Queue.Count > 0)
             {
-                DiscordChannel musicbox = Guild.GetChannel(1096091897539350679);
+                DiscordChannel musicbox = Guild.GetChannel(1207783428695658566);
                 await conn.PlayAsync(Queue[0]);
                 Queue.RemoveAt(0);
                 SkipVoting.Active = false;
@@ -71,12 +68,12 @@ namespace Brawlbot.Commands
         public async Task Play(InteractionContext ctx,
             [Option("Search", "The track you would like to search.")] string search)
         {
-            await ctx.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder() { IsEphemeral = !ctx.Interaction.Channel.IsPrivate });
+            await ctx.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder() { IsEphemeral = !(ctx.Channel.Id == 1207783397045567579 || ctx.Channel.IsPrivate) });
             try
             {
                 if (!InVC(ctx))
                 {
-                    await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent("You must be connected to the Music Box channel to use the music commands."));
+                    await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent("You must be connected to the Music channel to use the music commands."));
                     return;
                 }
                 var node = LavaLink.ConnectedNodes.Values.First();
@@ -97,7 +94,7 @@ namespace Brawlbot.Commands
                     return;
                 }
 
-                DiscordChannel musicbox = Guild.GetChannel(1096091897539350679);
+                DiscordChannel musicbox = Guild.GetChannel(1207783428695658566);
 
                 await node.ConnectAsync(musicbox);
 
@@ -117,12 +114,12 @@ namespace Brawlbot.Commands
         [SlashCommand("pause", "Pauses the current track.")]
         public async Task Pause(InteractionContext ctx)
         {
-            await ctx.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder() { IsEphemeral = !ctx.Interaction.Channel.IsPrivate });
+            await ctx.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder() { IsEphemeral = !(ctx.Channel.Id == 1207783397045567579 || ctx.Channel.IsPrivate) });
             try
             {
                 if (!InVC(ctx))
                 {
-                    await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent("You must be connected to the Music Box channel to use the music commands."));
+                    await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent("You must be connected to the Music channel to use the music commands."));
                     return;
                 }
                 var conn = GetLavalinkConnection();
@@ -146,12 +143,12 @@ namespace Brawlbot.Commands
         [SlashCommand("resume", "Resumes the current track.")]
         public async Task Resume(InteractionContext ctx)
         {
-            await ctx.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder() { IsEphemeral = !ctx.Interaction.Channel.IsPrivate });
+            await ctx.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder() { IsEphemeral = !(ctx.Channel.Id == 1207783397045567579 || ctx.Channel.IsPrivate) });
             try
             {
                 if (!InVC(ctx))
                 {
-                    await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent("You must be connected to the Music Box channel to use the music commands."));
+                    await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent("You must be connected to the Music channel to use the music commands."));
                     return;
                 }
                 var conn = GetLavalinkConnection();
@@ -181,10 +178,10 @@ namespace Brawlbot.Commands
         [SlashCommand("voteskip", "Votes to skip the current track.")]
         public async Task VoteSkip(InteractionContext ctx)
         {
-            await ctx.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder() { IsEphemeral = !ctx.Interaction.Channel.IsPrivate });
+            await ctx.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder() { IsEphemeral = !(ctx.Channel.Id == 1207783397045567579 || ctx.Channel.IsPrivate) });
             try
             {
-                IReadOnlyList<DiscordMember> users = Guild.GetChannel(1096091897539350679).Users;
+                IReadOnlyList<DiscordMember> users = Guild.GetChannel(1207783428695658566).Users;
                 int userRequirement = (users.Count - 1) / 2 + 1;
                 while (userRequirement > 5)
                 {
@@ -192,7 +189,7 @@ namespace Brawlbot.Commands
                 }
                 if (!InVC(ctx))
                 {
-                    await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent("You must be connected to the Music Box channel to use the music commands."));
+                    await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent("You must be connected to the Music channel to use the music commands."));
                     return;
                 }
                 var conn = GetLavalinkConnection();
@@ -250,7 +247,7 @@ namespace Brawlbot.Commands
         [SlashCommand("queue", "Displays the current queue.")]
         public async Task GetQueue(InteractionContext ctx)
         {
-            await ctx.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder() { IsEphemeral = !ctx.Interaction.Channel.IsPrivate });
+            await ctx.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder() { IsEphemeral = !(ctx.Channel.Id == 1207783397045567579 || ctx.Channel.IsPrivate) });
             try
             {
                 var conn = GetLavalinkConnection();
@@ -296,7 +293,7 @@ namespace Brawlbot.Commands
         [SlashRequireOwner]
         public async Task ClearQueue(InteractionContext ctx)
         {
-            await ctx.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder() { IsEphemeral = !ctx.Interaction.Channel.IsPrivate });
+            await ctx.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder() { IsEphemeral = !(ctx.Channel.Id == 1207783397045567579 || ctx.Channel.IsPrivate) });
             try
             {
                 Queue = new List<LavalinkTrack>();
@@ -312,12 +309,12 @@ namespace Brawlbot.Commands
         [SlashRequireOwner]
         public async Task Skip(InteractionContext ctx)
         {
-            await ctx.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder() { IsEphemeral = !ctx.Interaction.Channel.IsPrivate });
+            await ctx.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder() { IsEphemeral = !(ctx.Channel.Id == 1207783397045567579 || ctx.Channel.IsPrivate) });
             try
             {
                 if (!InVC(ctx))
                 {
-                    await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent("You must be connected to the Music Box channel to use the music commands."));
+                    await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent("You must be connected to the Music channel to use the music commands."));
                     return;
                 }
                 var conn = GetLavalinkConnection();

@@ -52,12 +52,11 @@ namespace Brawlbot
             SlashCommands.RegisterCommands<TextCommands>();
             SlashCommands.RegisterCommands<YoutubeDownload>();
             SlashCommands.RegisterCommands<Music>();
-            SlashCommands.RegisterCommands<Announcements>(984507807393017976);
 
             var endpoint = new ConnectionEndpoint
             {
                 Hostname = "127.0.0.1", // From your server configuration.
-                Port = 2333 // From your server configuration
+                Port = 2580 // From your server configuration
             };
 
             var lavalinkConfig = new LavalinkConfiguration
@@ -67,6 +66,7 @@ namespace Brawlbot
                 SocketEndpoint = endpoint
             };
 
+
             var lavalink = Client.UseLavalink();
 
             Client.UseVoiceNext();
@@ -75,7 +75,8 @@ namespace Brawlbot
             await events.AssignAllEvents();
 
             await Client.ConnectAsync();
-#if !DEBUG
+
+#if DEBUG == false
             await lavalink.ConnectAsync(lavalinkConfig);
 #endif
 
@@ -85,7 +86,7 @@ namespace Brawlbot
         private Task OnClientReady(DiscordClient sender, ReadyEventArgs e)
         {
             DiscordActivity activity = new DiscordActivity();
-            activity.Name = $"/help | https://discord.gg/ThYqfCWc4w";
+            activity.Name = $"/help";
             Client.UpdateStatusAsync(activity);
 
             return Task.CompletedTask;

@@ -22,7 +22,7 @@ namespace Brawlbot
 
         private async Task LogInteractions(DiscordClient client, InteractionCreateEventArgs eventArgs)
         {
-            DiscordChannel channel = Bot.Client.GetGuildAsync(984507807393017976).Result.GetChannel(1159213708552187945);
+            DiscordChannel channel = Bot.Client.GetGuildAsync(1207775700883476580).Result.GetChannel(1207782639558201424);
 
             string options = "";
 
@@ -115,7 +115,7 @@ namespace Brawlbot
                     }
                     else
                     {
-                        DiscordChannel logChannel = Bot.Client.GetGuildAsync(984507807393017976).Result.GetChannel(1159213708552187945);
+                        DiscordChannel logChannel = Bot.Client.GetGuildAsync(1207775700883476580).Result.GetChannel(1207782639558201424);
                         DiscordEmbedBuilder embed = new()
                         {
                             Color = new DiscordColor("#FF0000"),
@@ -135,7 +135,7 @@ namespace Brawlbot
                             messages.Reverse();
                             foreach (var message in messages)
                             {
-                                txtFile += $"{message.CreationTimestamp} - {message.Content}";
+                                txtFile += $"[{message.CreationTimestamp}] {message.Author.Username}: {message.Content}";
                                 foreach (var attachment in message.Attachments)
                                 {
                                     txtFile += $" {attachment.Url}";
@@ -164,7 +164,7 @@ namespace Brawlbot
             {
                 if (ch.Number != curNum)
                 {
-                    DiscordChannel logChannel = Bot.Client.GetGuildAsync(984507807393017976).Result.GetChannel(1159213708552187945);
+                    DiscordChannel logChannel = Bot.Client.GetGuildAsync(1207775700883476580).Result.GetChannel(1207782639558201424);
                     DiscordEmbedBuilder embed = new()
                     {
                         Color = new DiscordColor("#FF0000"),
@@ -190,7 +190,7 @@ namespace Brawlbot
                 DiscordChannel lastChannel = channelInfos.Last().Channel;
                 await guild.CreateChannelAsync($"{name} #{curNum}", ChannelType.Voice, parent: lastChannel.Parent, position: lastChannel.Position);
 
-                DiscordChannel logChannel = Bot.Client.GetGuildAsync(984507807393017976).Result.GetChannel(1159213708552187945);
+                DiscordChannel logChannel = Bot.Client.GetGuildAsync(1207775700883476580).Result.GetChannel(1207782639558201424);
                 DiscordEmbedBuilder embed = new()
                 {
                     Color = new DiscordColor("#FF0000"),
